@@ -6,6 +6,9 @@
 
     <changeSet id="1" author="carlos-bahia">
         <sql dbms="postgresql">
+
+            <!-- Tabela de promoção, feita para teste de envio de email -->
+
             CREATE TABLE SALE (
                 id_sale SERIAL PRIMARY KEY,
                 sale_name VARCHAR(64) NOT NULL,
@@ -14,6 +17,103 @@
 
             INSERT INTO SALE (sale_name, total_price)
             VALUES ('Cabelo e Barba', 49.99);
+
+        </sql>
+    </changeSet>
+
+    <changeSet id="2" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            <!-- Tabelas inicias do projeto -->
+
+            CREATE TABLE ADDRESS (
+                id_adress SERIAL PRIMARY KEY,
+                street VARCHAR(80) NOT NULL,
+                number NUMERIC,
+                neighborhood VARCHAR(30) NOT NULL,
+                city VARCHAR(30) NOT NULL,
+                state VARCHAR(2) NOT NULL,
+                cep VARCHAR(8) NOT NULL
+            );
+
+            CREATE TABLE SERVICE (
+                id_service SERIAL PRIMARY KEY,
+                name_service VARCHAR(50) NOT NULL,
+                description_service VARCHAR(255) NOT NULL,
+                price_service REAL NOT NULL,
+                time_service TIME WITHOUT TIME ZONE NOT NULL
+            );
+
+            CREATE TABLE BARBER (
+                id_barber SERIAL PRIMARY KEY,
+                name_barber VARCHAR(100) NOT NULL,
+                cpf_barber VARCHAR(11) UNIQUE NOT NULL,
+                id_adress INTEGER,
+                salary REAL NOT NULL,
+                admission_date DATE NOT NULL,
+                profile_photo BYTEA,
+                workload NUMERIC NOT NULL,
+                CONSTRAINT fk_adress_barber
+                FOREIGN KEY (id_adress) REFERENCES ADDRESS(id_adress)
+            );
+
+            CREATE TABLE PRODUCT (
+                id_product SERIAL PRIMARY KEY,
+                name_product VARCHAR(50) NOT NULL,
+                brand_product VARCHAR(20) NOT NULL,
+                price_product REAL NOT NULL,
+                size VARCHAR(20)
+            );
+
+            CREATE TABLE PRODUCT_STOCK (
+                id_stock SERIAL PRIMARY KEY,
+                id_product INTEGER NOT NULL,
+                batch_number VARCHAR(50) NOT NULL,
+                quantity INTEGER NOT NULL,
+                expiration_date DATE,
+                acquisition_date DATE NOT NULL,
+                CONSTRAINT fk_product_stock
+                FOREIGN KEY (id_product) REFERENCES PRODUCT(id_product)
+            );
+
+            CREATE TABLE SERVICE_X_PRODUCT (
+               id_service INTEGER NOT NULL,
+               id_product INTEGER NOT NULL,
+               quantity INTEGER NOT NULL,
+               PRIMARY KEY (id_service, id_product),
+               FOREIGN KEY (id_service) REFERENCES SERVICE(id_service),
+               FOREIGN KEY (id_product) REFERENCES PRODUCT(id_product)
+            );
+
+            CREATE TABLE BARBER_X_SERVICE (
+              id_barber INTEGER NOT NULL,
+              id_service INTEGER NOT NULL,
+              PRIMARY KEY (id_barber, id_service),
+              FOREIGN KEY (id_service) REFERENCES SERVICE(id_service),
+              FOREIGN KEY (id_barber) REFERENCES BARBER(id_barber)
+            )
+
+        </sql>
+    </changeSet>
+
+    <changeSet id="3" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            -- Adiciona novas colunas à tabela SALE
+            ALTER TABLE SALE
+            ADD COLUMN discount_coupon VARCHAR(7),
+            ADD COLUMN start_date DATE DEFAULT CURRENT_DATE,
+            ADD COLUMN end_date DATE DEFAULT CURRENT_DATE + INTERVAL '30 days';
+
+            -- Atualiza registros existentes com valores padrão se forem nulos
+            UPDATE SALE
+            SET discount_coupon = COALESCE(discount_coupon, 'DEFAULT');
+
+            -- Define as novas colunas como NOT NULL, garantindo que não aceitem valores nulos
+            ALTER TABLE SALE
+                ALTER COLUMN discount_coupon SET NOT NULL,
+                ALTER COLUMN start_date SET NOT NULL,
+                ALTER COLUMN end_date SET NOT NULL;
 
         </sql>
     </changeSet>
