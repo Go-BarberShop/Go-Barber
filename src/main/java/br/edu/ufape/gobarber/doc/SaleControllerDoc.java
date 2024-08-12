@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import liquibase.pro.packaged.C;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -133,4 +134,13 @@ public interface SaleControllerDoc {
     )
     @PutMapping("/{id}")
     public ResponseEntity<SaleDTO> updateSale(@Valid @RequestBody SaleCreateDTO saleCreateDTO, @PathVariable Integer id) throws DataBaseException;
+
+    @Operation(summary = "Remover promoção", description = "Remove uma promoção.")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Removido com sucesso", content = @Content())
+            }
+    )
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteSale(@PathVariable Integer id);
 }

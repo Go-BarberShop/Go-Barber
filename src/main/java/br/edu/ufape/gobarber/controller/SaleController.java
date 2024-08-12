@@ -46,4 +46,11 @@ public class SaleController implements SaleControllerDoc {
         SaleDTO saleDTO = saleService.updateSale(id, saleCreateDTO);
         return new ResponseEntity<>(saleDTO, HttpStatus.OK);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteSale(@PathVariable Integer id) {
+
+        saleService.delete(id);
+        return ResponseEntity.ok().build();
+    }
 }

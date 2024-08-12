@@ -75,6 +75,12 @@ public class SaleService {
         return convertSaleToDTO(sale);
     }
 
+    public void delete(Integer id) {
+        Optional<Sale> sale = saleRepository.findById(id);
+
+        sale.ifPresent(saleRepository::delete);
+    }
+
     private SaleDTO convertSaleToDTO (Sale sale) {
         SaleDTO saleDTO = new SaleDTO();
         saleDTO.setId(sale.getIdSale());
@@ -161,6 +167,5 @@ public class SaleService {
         }
 
     }
-
 
 }
