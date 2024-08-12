@@ -101,7 +101,7 @@
 
             -- Adiciona novas colunas à tabela SALE
             ALTER TABLE SALE
-            ADD COLUMN discount_coupon VARCHAR(7),
+            ADD COLUMN discount_coupon VARCHAR(7) UNIQUE,
             ADD COLUMN start_date DATE DEFAULT CURRENT_DATE,
             ADD COLUMN end_date DATE DEFAULT CURRENT_DATE + INTERVAL '30 days';
 

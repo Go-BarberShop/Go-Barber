@@ -1,6 +1,6 @@
 package br.edu.ufape.gobarber.service;
 
-import br.edu.ufape.gobarber.dto.SaleEmailDTO;
+import br.edu.ufape.gobarber.dto.sale.SaleEmailDTO;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import javax.mail.MessagingException;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,7 @@ public class EmailService {
     @Async
     public void sendPromotionalEmail(String recipitent, SaleEmailDTO sale) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         try{
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -46,6 +48,8 @@ public class EmailService {
             Map<String, Object> promocionalData = new HashMap<>();
             promocionalData.put("nomePromocao",sale.getName());
             promocionalData.put("precoPromocao", String.format("%.2f", sale.getTotalPrice()));
+            promocionalData.put("cupom", sale.getCoupon());
+            promocionalData.put("endDate", sale.getEndDate().format(formatter));
 
             mimeMessageHelper.setText(getContentFromTemplate("sale.ftl", promocionalData), true);
 

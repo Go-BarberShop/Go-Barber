@@ -102,8 +102,10 @@
         <div class="promotion-name"> ${nomePromocao} </div>
         <div class="combo-price">
             Valor do Combo: R$ ${precoPromocao}
+            <br>
+            Até o dia: ${endDate}
         </div>
-        <a href="#" class="cta-button">Aproveitar Agora!</a>
+        <a href="#" class="cta-button">Use o Cupom: ${cupom}</a>
     </div>
     <div class="footer">
         <p>Se você não deseja mais receber esses e-mails, clique <a href="#">aqui</a> para cancelar a inscrição.</p>
