@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.service;
 
+import br.edu.ufape.gobarber.dto.page.PageSaleDTO;
 import br.edu.ufape.gobarber.dto.sale.SaleCreateDTO;
 import br.edu.ufape.gobarber.dto.sale.SaleDTO;
 import br.edu.ufape.gobarber.dto.sale.SaleEmailDTO;
@@ -8,7 +9,11 @@ import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Sale;
 import br.edu.ufape.gobarber.repository.SaleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ConstraintViolationException;
 import java.security.SecureRandom;
@@ -24,7 +29,7 @@ public class SaleService {
     private final EmailService emailService;
     private static final SecureRandom RANDOM = new SecureRandom();
 
-
+    @Transactional
     public SaleDTO createSale(SaleCreateDTO saleCreateDTO) throws DataBaseException, DataBaseConstraintException, ConstraintViolationException {
         if(saleCreateDTO.getCoupon() != null && saleCreateDTO.getCoupon().length() != 7){
             throw new IllegalArgumentException("O cupom deve ter exatamente 7 caracteres.");
@@ -56,6 +61,7 @@ public class SaleService {
         }
     }
 
+    @Transactional
     public SaleDTO updateSale(Integer id, SaleCreateDTO saleCreateDTO) throws DataBaseException {
 
         Sale sale = saleRepository.findById(id).orElseThrow(() -> new DataBaseException("Promoção não encontrada no banco de dados"));
@@ -75,10 +81,51 @@ public class SaleService {
         return convertSaleToDTO(sale);
     }
 
+    @Transactional
     public void delete(Integer id) {
         Optional<Sale> sale = saleRepository.findById(id);
 
         sale.ifPresent(saleRepository::delete);
+    }
+
+    public PageSaleDTO getAllSales(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Sale> salePage = saleRepository.findAll(pageable);
+        Page<SaleDTO> saleDTOPage = salePage.map(this::convertSaleToDTO);
+
+        return new PageSaleDTO(
+                saleDTOPage.getTotalElements(),
+                saleDTOPage.getTotalPages(),
+                saleDTOPage.getPageable().getPageNumber(),
+                saleDTOPage.getSize(),
+                saleDTOPage.getContent()
+        );
+    }
+
+    public PageSaleDTO getAllValidSales(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Sale> salePage = saleRepository.findAllByEndDateAfter(LocalDate.now(), pageable);
+        Page<SaleDTO> saleDTOPage = salePage.map(this::convertSaleToDTO);
+
+        return new PageSaleDTO(
+                saleDTOPage.getTotalElements(),
+                saleDTOPage.getTotalPages(),
+                saleDTOPage.getPageable().getPageNumber(),
+                saleDTOPage.getSize(),
+                saleDTOPage.getContent()
+        );
+    }
+
+    public SaleDTO getSale(Integer id) throws DataBaseException {
+        Sale sale = saleRepository.findById(id).orElseThrow(() -> new DataBaseException("Promoção não encontrada!"));
+
+        return convertSaleToDTO(sale);
+    }
+
+    public SaleDTO getSaleByCoupon(String coupon) throws DataBaseException {
+        Sale sale = saleRepository.findByCoupon(coupon).orElseThrow(() -> new DataBaseException("Promoção não encontrada!"));
+
+        return convertSaleToDTO(sale);
     }
 
     private SaleDTO convertSaleToDTO (Sale sale) {
@@ -128,7 +175,7 @@ public class SaleService {
         String generatedCoupon = new String(resultArray);
 
         for(int i = 0; i < 10; i ++) {
-            if (saleRepository.findByCoupon(generatedCoupon) != null) {
+            if (saleRepository.findByCoupon(generatedCoupon).isPresent()) {
                 Collections.shuffle(Arrays.asList(resultArray), RANDOM);
                 generatedCoupon = new String(resultArray);
             } else {
@@ -136,7 +183,7 @@ public class SaleService {
             }
         }
 
-        if(saleRepository.findByCoupon(generatedCoupon) != null){
+        if(saleRepository.findByCoupon(generatedCoupon).isPresent()){
             generatedCoupon = generateCoupon(saleName);
         }
 

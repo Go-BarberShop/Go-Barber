@@ -1,6 +1,7 @@
 package br.edu.ufape.gobarber.controller;
 
 import br.edu.ufape.gobarber.doc.SaleControllerDoc;
+import br.edu.ufape.gobarber.dto.page.PageSaleDTO;
 import br.edu.ufape.gobarber.dto.sale.SaleCreateDTO;
 import br.edu.ufape.gobarber.dto.sale.SaleDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseConstraintException;
@@ -47,10 +48,33 @@ public class SaleController implements SaleControllerDoc {
         return new ResponseEntity<>(saleDTO, HttpStatus.OK);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSale(@PathVariable Integer id) {
 
         saleService.delete(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping
+    public ResponseEntity<PageSaleDTO> getAllSales(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                                   @RequestParam(value = "size", required = false, defaultValue = "10")Integer size){
+        return new ResponseEntity<>(saleService.getAllSales(page, size), HttpStatus.OK);
+    }
+
+    @GetMapping("/valid")
+    public ResponseEntity<PageSaleDTO> getAllValidSales(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                                        @RequestParam(value = "size", required = false, defaultValue = "10")Integer size){
+        return new ResponseEntity<>(saleService.getAllValidSales(page, size), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SaleDTO> getSale(@PathVariable Integer id) throws DataBaseException {
+        return new ResponseEntity<>(saleService.getSale(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/coupon/{coupon}")
+    public ResponseEntity<SaleDTO> getSaleByCoupon(@PathVariable String coupon) throws DataBaseException {
+        return new ResponseEntity<>(saleService.getSaleByCoupon(coupon), HttpStatus.OK);
+    }
+
 }

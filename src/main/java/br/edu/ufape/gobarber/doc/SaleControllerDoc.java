@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.doc;
 
+import br.edu.ufape.gobarber.dto.page.PageSaleDTO;
 import br.edu.ufape.gobarber.dto.sale.SaleCreateDTO;
 import br.edu.ufape.gobarber.dto.sale.SaleDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseConstraintException;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import liquibase.pro.packaged.C;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -143,4 +143,112 @@ public interface SaleControllerDoc {
     )
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteSale(@PathVariable Integer id);
+
+
+    @Operation(summary = "Buscar uma promoção pelo cupom", description = "Procura uma promoção com o cupom passado como parâmetro")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Promoção encontrada com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = SaleDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Promoção não encontrada",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(type = "object"),
+                                    examples = @ExampleObject(
+                                            value = """
+                                                    {
+                                                      "timestamp": "2024-08-12T01:13:15.712+00:00",
+                                                      "status": 409,
+                                                      "message": "Promoção não encontrada!"
+                                                    }"""
+                                    )
+                            )
+                    )
+            }
+    )
+    @GetMapping("/coupon/{coupon}")
+    public ResponseEntity<SaleDTO> getSaleByCoupon(@PathVariable String coupon) throws DataBaseException;
+
+    @Operation(summary = "Buscar uma promoção por id", description = "Procura uma promoção com o id passado como parâmetro")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Promoção encontrada com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = SaleDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Promoção não encontrada",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(type = "object"),
+                                    examples = @ExampleObject(
+                                            value = """
+                                                    {
+                                                      "timestamp": "2024-08-12T01:13:15.712+00:00",
+                                                      "status": 409,
+                                                      "message": "Promoção não encontrada!"
+                                                    }"""
+                                    )
+                            )
+                    )
+            }
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<SaleDTO> getSale(@PathVariable Integer id) throws DataBaseException;
+
+
+    @Operation(summary = "Buscar todas as promoções válidas", description = "Procura todas as promoções com data de encerramento superior a data atual")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Promoções válidas encontradas com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = PageSaleDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Erro interno do servidor",
+                            content = @Content()
+                    )
+    })
+    @GetMapping("/valid")
+    public ResponseEntity<PageSaleDTO> getAllValidSales(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                                        @RequestParam(value = "size", required = false, defaultValue = "10")Integer size);
+
+    @Operation(summary = "Buscar todas as promoções", description = "Procura todas as promoções cadastradas no sistema")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Promoções encontradas com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = PageSaleDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Erro interno do servidor",
+                            content = @Content()
+                    )
+    })
+    @GetMapping
+    public ResponseEntity<PageSaleDTO> getAllSales(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                                   @RequestParam(value = "size", required = false, defaultValue = "10")Integer size);
 }
