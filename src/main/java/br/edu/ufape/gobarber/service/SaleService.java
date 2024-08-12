@@ -208,13 +208,13 @@ public class SaleService {
         //List<String> costumersEmails = costumerRepository.findAllEmails();
         List<String> costumersEmails = List.of(
                 "cadu29bahia@gmail.com"
-//                , "adenilson.ramos@ufape.edu.br"
-//                , "Mestreguga24@gmail.com"
-//                , "carlosrichard7@gmail.com"
-//                , "emanuelreino13@gmail.com"
-//                , "erikff7@gmail.com"
-//                , "ricaelle.nascimento@ufape.edu.br"
-//                , "LucasGaldencio77@gmail.com"
+               , "adenilson.ramos@ufape.edu.br"
+               , "Mestreguga24@gmail.com"
+               , "carlosrichard7@gmail.com"
+               , "emanuelreino13@gmail.com"
+               , "erikff7@gmail.com"
+               , "ricaelle.nascimento@ufape.edu.br"
+               , "LucasGaldencio77@gmail.com"
 //                , "rodrigo.andrade@ufape.edu.br"
 
         );
