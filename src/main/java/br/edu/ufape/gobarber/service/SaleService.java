@@ -56,6 +56,25 @@ public class SaleService {
         }
     }
 
+    public SaleDTO updateSale(Integer id, SaleCreateDTO saleCreateDTO) throws DataBaseException {
+
+        Sale sale = saleRepository.findById(id).orElseThrow(() -> new DataBaseException("Promoção não encontrada no banco de dados"));
+
+        if(saleCreateDTO.getCoupon() != null && saleCreateDTO.getCoupon().length() != 7){
+            throw new IllegalArgumentException("O cupom deve ter exatamente 7 caracteres.");
+        }
+
+        sale.setName(saleCreateDTO.getName());
+        sale.setTotalPrice(saleCreateDTO.getTotalPrice());
+        sale.setStartDate(saleCreateDTO.getStartDate());
+        sale.setEndDate(saleCreateDTO.getEndDate());
+        sale.setCoupon(saleCreateDTO.getCoupon());
+
+        sale = saleRepository.save(sale);
+
+        return convertSaleToDTO(sale);
+    }
+
     private SaleDTO convertSaleToDTO (Sale sale) {
         SaleDTO saleDTO = new SaleDTO();
         saleDTO.setId(sale.getIdSale());
@@ -142,4 +161,6 @@ public class SaleService {
         }
 
     }
+
+
 }

@@ -11,9 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -81,4 +79,58 @@ public interface SaleControllerDoc {
     )
     @PostMapping
     public ResponseEntity<SaleDTO> createSale(@Valid @RequestBody SaleCreateDTO saleCreateDTO) throws DataBaseException, DataBaseConstraintException;
+
+
+    @Operation(summary = "Atualizar promoção", description = "Atualiza uma promoção.")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Promoção atualizada com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = SaleDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Erro na validação do cupom na base de dados",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object"
+                                    ),
+                                    examples = @ExampleObject(
+                                            value = """
+                                                    {
+                                                      "timestamp": "2024-08-12T01:13:15.712+00:00",
+                                                      "status": 409,
+                                                      "message": "Cupom já cadastrado no banco de dados."
+                                                    }"""
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Erro de validação",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(type = "object"),
+                                    examples = @ExampleObject(
+                                            value = """
+                                                    {
+                                                      "timestamp": "2024-08-12T01:31:25.745+00:00",
+                                                      "status": 400,
+                                                      "errors": [
+                                                        "name: não deve estar em branco",
+                                                        "totalPrice: deve ser maior que 0"
+                                                      ]
+                                                    }"""
+                                    )
+                            )
+                    )
+            }
+    )
+    @PutMapping("/{id}")
+    public ResponseEntity<SaleDTO> updateSale(@Valid @RequestBody SaleCreateDTO saleCreateDTO, @PathVariable Integer id) throws DataBaseException;
 }

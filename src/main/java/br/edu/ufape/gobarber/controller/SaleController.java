@@ -40,4 +40,10 @@ public class SaleController implements SaleControllerDoc {
         return new ResponseEntity<>(saleDTO, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<SaleDTO> updateSale(@Valid @RequestBody SaleCreateDTO saleCreateDTO, @PathVariable Integer id) throws DataBaseException {
+
+        SaleDTO saleDTO = saleService.updateSale(id, saleCreateDTO);
+        return new ResponseEntity<>(saleDTO, HttpStatus.OK);
+    }
 }
