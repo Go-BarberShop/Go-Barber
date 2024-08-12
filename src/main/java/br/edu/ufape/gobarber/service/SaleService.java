@@ -171,12 +171,22 @@ public class SaleService {
 
         // Converta para um array de char e embaralhe os caracteres
         char[] resultArray = result.toString().toCharArray();
-        Collections.shuffle(Arrays.asList(resultArray), RANDOM);
+        List<Character> list = new ArrayList<>();
+        for(Character c : resultArray){
+            list.add(c);
+        }
+        Collections.shuffle(list, RANDOM);
+        for (int i = 0; i < resultArray.length; i++) {
+            resultArray[i] = list.get(i);
+        }
         String generatedCoupon = new String(resultArray);
 
         for(int i = 0; i < 10; i ++) {
             if (saleRepository.findByCoupon(generatedCoupon).isPresent()) {
-                Collections.shuffle(Arrays.asList(resultArray), RANDOM);
+                Collections.shuffle(list, RANDOM);
+                for (int j = 0; j < resultArray.length; j++) {
+                    resultArray[j] = list.get(j);
+                }
                 generatedCoupon = new String(resultArray);
             } else {
                 break;
