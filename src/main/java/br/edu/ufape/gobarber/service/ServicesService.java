@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.service;
 
+import br.edu.ufape.gobarber.dto.page.PageServicesDTO;
 import br.edu.ufape.gobarber.dto.services.ServicesCreateDTO;
 import br.edu.ufape.gobarber.dto.services.ServicesDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.Valid;
+import java.time.LocalTime;
 import java.util.Optional;
 
 @Service
@@ -33,7 +35,7 @@ public class ServicesService {
         services.setNameService(servicesCreateDTO.getName());
         services.setDescriptionService(servicesCreateDTO.getDescription());
         services.setValueService(servicesCreateDTO.getValue());
-        services.setTimeService(servicesCreateDTO.getTime());
+        services.setTimeService(convertIntegerToTime(servicesCreateDTO.getTime()));
 
         services = servicesRepository.save(services);
 
@@ -47,7 +49,7 @@ public class ServicesService {
         services.setNameService(servicesCreateDTO.getName());
         services.setDescriptionService(servicesCreateDTO.getDescription());
         services.setValueService(servicesCreateDTO.getValue());
-        services.setTimeService(servicesCreateDTO.getTime());
+        services.setTimeService(convertIntegerToTime(servicesCreateDTO.getTime()));
 
         services = servicesRepository.save(services);
 
@@ -67,18 +69,41 @@ public class ServicesService {
         return convertServicesToDTO(services);
     }
 
-    public Page<Services> getAllServices(Integer page, Integer size) {
+    public PageServicesDTO getAllServices(Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
-        return servicesRepository.findAll(pageable);
+        Page<Services> servicePage = servicesRepository.findAll(pageable);
+        Page<ServicesDTO> servicesDTOPage = servicePage.map(this::convertServicesToDTO);
+
+        return new PageServicesDTO(
+                servicesDTOPage.getTotalElements(),
+                servicesDTOPage.getTotalPages(),
+                servicesDTOPage.getPageable().getPageNumber(),
+                servicesDTOPage.getSize(),
+                servicesDTOPage.getContent()
+        );
     }
 
     private ServicesDTO convertServicesToDTO(Services services) {
         ServicesDTO servicesDTO = new ServicesDTO();
+        servicesDTO.setId(services.getIdService());
         servicesDTO.setName(services.getNameService());
         servicesDTO.setDescription(services.getDescriptionService());
         servicesDTO.setValue(services.getValueService());
-        servicesDTO.setTime(services.getTimeService());
+        servicesDTO.setTime(convertTimeToInteger(services.getTimeService()));
 
         return servicesDTO;
+    }
+
+    private LocalTime convertIntegerToTime(Integer entry) {
+        int hours = entry / 60;
+        int minutes = entry % 60;
+
+        return LocalTime.of(hours, minutes);
+    }
+
+    private Integer convertTimeToInteger(LocalTime entry) {
+        int hoursInMinutes = entry.getHour() * 60;
+        int minutes = entry.getMinute();
+        return hoursInMinutes + minutes;
     }
 }
