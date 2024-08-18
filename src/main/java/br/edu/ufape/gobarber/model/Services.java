@@ -6,18 +6,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "services")
+@Entity(name = "service")
 public class Services {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_service")
-    private Long idService;
+    private Integer idService;
 
     @Column(name = "name_service")
     private String nameService;
@@ -25,10 +26,10 @@ public class Services {
     @Column(name = "description_service")
     private String descriptionService;
 
-    @Column(name = "value_service")
+    @Column(name = "price_service")
     private double valueService;
 
     @Column(name = "time_service")
-    private Integer timeService;
+    private LocalTime timeService;
 
 }
