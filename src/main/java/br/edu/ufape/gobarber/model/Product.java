@@ -1,11 +1,13 @@
 package br.edu.ufape.gobarber.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -33,5 +35,9 @@ public class Product {
 
     @Column(name = "size")
     private String size;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private Set<ProductStock> productStocks;
 
 }

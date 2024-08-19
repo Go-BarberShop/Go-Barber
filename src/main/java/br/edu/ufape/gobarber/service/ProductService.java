@@ -5,6 +5,7 @@ import br.edu.ufape.gobarber.dto.product.ProductCreateDTO;
 import br.edu.ufape.gobarber.dto.product.ProductDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Product;
+import br.edu.ufape.gobarber.model.ProductStock;
 import br.edu.ufape.gobarber.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -71,6 +72,10 @@ public class ProductService {
                 productDTOPage.getSize(),
                 productDTOPage.getContent()
         );
+    }
+
+    protected Product getProductById(Integer id) throws DataBaseException {
+        return productRepository.findById(id).orElseThrow(() -> new DataBaseException("Não existe Produto com o id informado"));
     }
 
     private Product convertDTOtoEntity(ProductCreateDTO productCreateDTO) {
