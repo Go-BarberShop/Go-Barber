@@ -62,6 +62,16 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ServiceAlreadyExistsException.class)
+    public ResponseEntity<Object> handleException(ServiceAlreadyExistsException exception,
+                                                  HttpServletRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", new Date());
+        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("message", exception.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler({ConstraintViolationException.class, IllegalArgumentException.class})
     public ResponseEntity<Object> handleException(Exception exception,
                                                   HttpServletRequest request) {
