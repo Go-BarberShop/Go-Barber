@@ -215,7 +215,7 @@ public class SaleService {
                , "erikff7@gmail.com"
                , "ricaelle.nascimento@ufape.edu.br"
                , "LucasGaldencio77@gmail.com"
-//                , "rodrigo.andrade@ufape.edu.br"
+               , "rodrigo.andrade@ufape.edu.br"
 
         );
 
