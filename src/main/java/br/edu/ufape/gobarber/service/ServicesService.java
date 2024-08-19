@@ -83,7 +83,12 @@ public class ServicesService {
         );
     }
 
-    private ServicesDTO convertServicesToDTO(Services services) {
+    protected Services getServiceEntity(Integer id) throws DataBaseException {
+        return servicesRepository.findById(id)
+                .orElseThrow(() -> new DataBaseException("Serviço não encontrado!"));
+    }
+
+    protected ServicesDTO convertServicesToDTO(Services services) {
         ServicesDTO servicesDTO = new ServicesDTO();
         servicesDTO.setId(services.getIdService());
         servicesDTO.setName(services.getNameService());
