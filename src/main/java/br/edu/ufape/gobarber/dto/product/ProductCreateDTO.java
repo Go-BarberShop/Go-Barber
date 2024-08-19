@@ -12,6 +12,7 @@ import lombok.Setter;
 public class ProductCreateDTO {
     private String nameProduct;
     private String brandProduct;
+    private String descriptionProduct;
     private double priceProduct;
     private String size;
 }

@@ -118,4 +118,13 @@
         </sql>
     </changeSet>
 
+    <changeSet id="4" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            ALTER TABLE PRODUCT
+                ADD COLUMN description VARCHAR(120);
+
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
