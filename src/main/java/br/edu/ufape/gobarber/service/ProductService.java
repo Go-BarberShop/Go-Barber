@@ -1,6 +1,5 @@
 package br.edu.ufape.gobarber.service;
 
-
 import br.edu.ufape.gobarber.dto.page.PageProductDTO;
 import br.edu.ufape.gobarber.dto.product.ProductCreateDTO;
 import br.edu.ufape.gobarber.dto.product.ProductDTO;
@@ -8,7 +7,6 @@ import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Product;
 import br.edu.ufape.gobarber.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,16 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final ProductService productService;
-
-    @Autowired
     private final ProductRepository productRepository;
 
     @Transactional
@@ -66,7 +59,7 @@ public class ProductService {
         return convertEntityToDTO(productRepository.findById(id).orElseThrow(() -> new DataBaseException("Produto não encontrado no banco de dados.")));
     }
 
-    public PageProductDTO getAllProducts(Integer page, Integer size) throws DataBaseException{
+    public PageProductDTO getAllProducts(Integer page, Integer size){
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> productPage = productRepository.findAll(pageable);
         Page<ProductDTO> productDTOPage = productPage.map(this::convertEntityToDTO);
