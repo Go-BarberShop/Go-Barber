@@ -20,6 +20,9 @@ public class ProductDTO {
     @Schema(description = "Marca do produto", example = "For men")
     private String brandProduct;
 
+    @Schema(description = "Descrição do produto", example = "Pomada desenvolvida por cientistas para alisaro cabelo")
+    private String descriptionProduct;
+
     @Schema(description = "Preço do produto", example = "29")
     private double priceProduct;
 

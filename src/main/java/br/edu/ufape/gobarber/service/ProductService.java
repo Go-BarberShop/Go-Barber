@@ -77,6 +77,7 @@ public class ProductService {
         Product product = new Product();
         product.setNameProduct(productCreateDTO.getNameProduct());
         product.setBrandProduct(productCreateDTO.getBrandProduct());
+        product.setDescriptionProduct(productCreateDTO.getDescriptionProduct());
         product.setPriceProduct(productCreateDTO.getPriceProduct());
         product.setSize(productCreateDTO.getSize());
 
@@ -88,6 +89,7 @@ public class ProductService {
         productDTO.setIdProduct(product.getIdProduct());
         productDTO.setNameProduct(product.getNameProduct());
         productDTO.setBrandProduct(product.getBrandProduct());
+        productDTO.setDescriptionProduct(product.getDescriptionProduct());
         productDTO.setPriceProduct(product.getPriceProduct());
         productDTO.setSize(product.getSize());
 
