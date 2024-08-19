@@ -1,9 +1,15 @@
 package br.edu.ufape.gobarber.service;
 
 import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
+import br.edu.ufape.gobarber.dto.barber.BarberServiceDTO;
+import br.edu.ufape.gobarber.dto.barber.BarberWithServiceDTO;
+import br.edu.ufape.gobarber.dto.page.PageBarberDTO;
+import br.edu.ufape.gobarber.dto.page.PageProductDTO;
+import br.edu.ufape.gobarber.dto.services.ServicesDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.model.Barber;
+import br.edu.ufape.gobarber.model.Services;
 import br.edu.ufape.gobarber.repository.AddressRepository;
 import br.edu.ufape.gobarber.repository.BarberRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,19 +23,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BarberService {
 
     private final BarberRepository barberRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
+    private final AddressRepository addressRepository;
+    private final ServicesService servicesService;
 
     @Transactional
-    public Barber createBarber(@Valid BarberCreateDTO barberCreateDTO, MultipartFile profilePhoto) throws DataBaseException {
+    public BarberWithServiceDTO createBarber(@Valid BarberCreateDTO barberCreateDTO, MultipartFile profilePhoto) throws DataBaseException {
         try {
 
             Barber barber = convertDTOtoEntity(barberCreateDTO);
@@ -38,7 +47,7 @@ public class BarberService {
                 barber.setProfilePhoto(profilePhoto.getBytes());
             }
 
-            return barberRepository.save(barber);
+            return convertToCompleteDTO(barberRepository.save(barber));
         } catch (IOException e) {
             throw new DataBaseException("Erro ao processar a foto de perfil.");
         } catch (Exception e) {
@@ -47,7 +56,7 @@ public class BarberService {
     }
 
     @Transactional
-    public Barber updateBarber(Integer id, Barber updatedBarber, MultipartFile profilePhoto) throws DataBaseException {
+    public BarberWithServiceDTO updateBarber(Integer id, Barber updatedBarber, MultipartFile profilePhoto) throws DataBaseException {
         Barber barber = barberRepository.findById(id)
                 .orElseThrow(() -> new DataBaseException("Barbeiro não encontrado no banco de dados"));
 
@@ -65,7 +74,7 @@ public class BarberService {
                 throw new DataBaseException("Erro ao processar a foto de perfil.");
             }
         }
-        return barberRepository.save(barber);
+        return convertToCompleteDTO(barberRepository.save(barber));
     }
 
     @Transactional
@@ -74,14 +83,23 @@ public class BarberService {
         barber.ifPresent(barberRepository::delete);
     }
 
-    public Barber getBarber(Integer id) throws DataBaseException {
-        return barberRepository.findById(id)
-                .orElseThrow(() -> new DataBaseException("Barbeiro não encontrado!"));
+    public BarberWithServiceDTO getBarber(Integer id) throws DataBaseException {
+        return convertToCompleteDTO(barberRepository.findById(id)
+                .orElseThrow(() -> new DataBaseException("Barbeiro não encontrado!")));
     }
 
-    public Page<Barber> getAllBarbers(Integer page, Integer size) {
+    public PageBarberDTO getAllBarbers(Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
-        return barberRepository.findAll(pageable);
+        Page<Barber> barbers =  barberRepository.findAll(pageable);
+        Page<BarberWithServiceDTO> barberPage = barbers.map(this::convertToCompleteDTO);
+
+        return new PageBarberDTO(
+                barberPage.getTotalElements(),
+                barberPage.getTotalPages(),
+                barberPage.getPageable().getPageNumber(),
+                barberPage.getSize(),
+                barberPage.getContent()
+        );
     }
 
     public byte[] getProfilePhoto(Integer id) throws DataBaseException {
@@ -89,6 +107,40 @@ public class BarberService {
                 .orElseThrow(() -> new DataBaseException("Barbeiro não encontrado!"));
 
         return barber.getProfilePhoto();
+    }
+
+    @Transactional
+    public BarberWithServiceDTO addServiceToBarber(BarberServiceDTO barberServiceDTO) throws DataBaseException {
+
+        Barber barber = barberRepository.findById(barberServiceDTO.getIdBarber()).orElseThrow(() -> new DataBaseException("Não existe barbeiro com esse id"));
+
+        List<Services> servicesToAdd = new ArrayList<>();
+        for(Integer id : barberServiceDTO.getIdServices()) {
+            Services service = servicesService.getServiceEntity(id);
+            servicesToAdd.add(service);
+        }
+
+        for(Services s : servicesToAdd){
+            barber.addService(s);
+        }
+
+        barber = barberRepository.save(barber);
+
+        return convertToCompleteDTO(barber);
+    }
+
+    @Transactional
+    public BarberWithServiceDTO removeServiceFromBarber(Integer idBarber, Integer idService) throws DataBaseException {
+
+        Barber barber = barberRepository.findById(idBarber).orElseThrow(() -> new DataBaseException("Não existe barbeiro com esse id"));
+
+        Services service = servicesService.getServiceEntity(idService);
+
+        barber.removeService(service);
+
+        barber = barberRepository.save(barber);
+
+        return convertToCompleteDTO(barber);
     }
 
     private Barber convertDTOtoEntity(BarberCreateDTO barberCreateDTO) {
@@ -106,4 +158,28 @@ public class BarberService {
         barber.setWorkload(barberCreateDTO.getWorkload());
         return barber;
     }
+
+    private BarberWithServiceDTO convertToCompleteDTO(Barber barber){
+        BarberWithServiceDTO dto = new BarberWithServiceDTO();
+
+        dto.setIdBarber(barber.getIdBarber());
+        dto.setName(barber.getName());
+        dto.setCpf(barber.getCpf());
+
+        // Converter Address para AddressDTO, supondo que você tenha um método para isso
+        dto.setAddress(barber.getAddress().getIdAddress());
+
+        dto.setSalary(barber.getSalary());
+        dto.setAdmissionDate(barber.getAdmissionDate());
+        dto.setWorkload(barber.getWorkload());
+
+        // Converter o conjunto de Services para um conjunto de ServiceDTO
+        Set<ServicesDTO> serviceDTOs = barber.getServices().stream()
+                .map(servicesService::convertServicesToDTO)
+                .collect(Collectors.toSet());
+        dto.setServices(serviceDTOs);
+
+        return dto;
+    }
+
 }

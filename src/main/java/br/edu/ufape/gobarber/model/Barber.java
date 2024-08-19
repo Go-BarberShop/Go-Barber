@@ -7,7 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -43,4 +44,19 @@ public class Barber {
     @Column(name = "workload")
     private Integer workload;
 
+    @ManyToMany
+    @JoinTable(
+            name = "barber_x_service", // Name of the join table
+            joinColumns = @JoinColumn(name = "id_barber"), // Foreign key for Barber in join table
+            inverseJoinColumns = @JoinColumn(name = "id_service") // Foreign key for Service in join table
+    )
+    private Set<Services> services = new HashSet<>();
+
+    public void addService(Services services){
+        this.services.add(services);
+    }
+
+    public void removeService(Services services) {
+        this.services.remove(services);
+    }
 }

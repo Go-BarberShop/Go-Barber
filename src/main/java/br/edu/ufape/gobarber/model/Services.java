@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -31,5 +33,9 @@ public class Services {
 
     @Column(name = "time_service")
     private LocalTime timeService;
+
+    @ManyToMany(mappedBy = "services")
+    @JsonIgnore
+    private Set<Barber> barbers;
 
 }

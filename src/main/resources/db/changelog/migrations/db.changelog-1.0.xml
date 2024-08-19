@@ -127,4 +127,37 @@
         </sql>
     </changeSet>
 
+    <changeSet id="5" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            ALTER TABLE PRODUCT_STOCK
+            DROP CONSTRAINT fk_product_stock;
+
+            ALTER TABLE PRODUCT_STOCK
+            ADD CONSTRAINT fk_product_stock
+            FOREIGN KEY (id_product) REFERENCES PRODUCT(id_product) ON DELETE CASCADE;
+
+        </sql>
+    </changeSet>
+
+    <changeSet id="6" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            ALTER TABLE BARBER_X_SERVICE DROP CONSTRAINT fk_service;
+            ALTER TABLE BARBER_X_SERVICE DROP CONSTRAINT fk_barber;
+            ALTER TABLE BARBER_X_SERVICE DROP CONSTRAINT barber_x_service_id_service_fkey;
+            ALTER TABLE BARBER_X_SERVICE DROP CONSTRAINT barber_x_service_id_barber_fkey;
+
+            ALTER TABLE BARBER_X_SERVICE
+            ADD CONSTRAINT fk_service_barber
+            FOREIGN KEY (id_service) REFERENCES SERVICE(id_service) ON DELETE CASCADE;
+
+            ALTER TABLE BARBER_X_SERVICE
+            ADD CONSTRAINT fk_barber_service
+            FOREIGN KEY (id_barber) REFERENCES BARBER(id_barber) ON DELETE CASCADE;
+
+
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
