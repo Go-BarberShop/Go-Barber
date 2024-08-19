@@ -41,6 +41,7 @@ public class ProductService {
 
         product.setNameProduct(updatedProductDTO.getNameProduct());
         product.setBrandProduct(updatedProductDTO.getBrandProduct());
+        product.setDescriptionProduct(updatedProductDTO.getDescriptionProduct());
         product.setPriceProduct(updatedProductDTO.getPriceProduct());
         product.setSize(updatedProductDTO.getSize());
 
