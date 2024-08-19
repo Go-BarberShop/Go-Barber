@@ -40,4 +40,13 @@ public class Product {
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private Set<ProductStock> productStocks;
 
+    public Product(Integer id, String nameProduct, String brandProduct, String descriptionProduct, double priceProduct, String size) {
+        this.idProduct = id;
+        this.nameProduct = nameProduct;
+        this.brandProduct = brandProduct;
+        this.descriptionProduct = descriptionProduct;
+        this.priceProduct = priceProduct;
+        this.size = size;
+    }
+
 }

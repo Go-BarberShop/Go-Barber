@@ -79,7 +79,7 @@ public class ProductService {
         return productRepository.findById(id).orElseThrow(() -> new DataBaseException("Não existe Produto com o id informado"));
     }
 
-    private Product convertDTOtoEntity(ProductCreateDTO productCreateDTO) {
+    protected Product convertDTOtoEntity(ProductCreateDTO productCreateDTO) {
         Product product = new Product();
         product.setNameProduct(productCreateDTO.getNameProduct());
         product.setBrandProduct(productCreateDTO.getBrandProduct());
