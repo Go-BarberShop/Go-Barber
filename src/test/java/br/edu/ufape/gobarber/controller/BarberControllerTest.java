@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.controller;
 
+import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberUpdateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberServiceDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberWithServiceDTO;
@@ -69,7 +70,7 @@ class BarberControllerTest {
         MockMultipartFile barberFile = new MockMultipartFile("barber", "", "application/json", objectMapper.writeValueAsBytes(barberUpdateDTO));
         MockMultipartFile profilePhoto = new MockMultipartFile("profilePhoto", "photo.jpg", "image/jpeg", new byte[0]);
 
-        when(barberService.createBarber(any(BarberUpdateDTO.class), any())).thenReturn(barberWithServiceDTO);
+        when(barberService.createBarber(any(BarberCreateDTO.class), any())).thenReturn(barberWithServiceDTO);
 
         mockMvc.perform(multipart("/barber")
                         .file(barberFile)
@@ -88,7 +89,7 @@ class BarberControllerTest {
         MockMultipartFile profilePhoto = new MockMultipartFile("profilePhoto", "photo.jpg", "image/jpeg", new byte[0]);
 
         // Configuração do mock para retornar uma exceção de validação
-        when(barberService.createBarber(any(BarberUpdateDTO.class), any())).thenThrow(new IllegalArgumentException("Invalid data"));
+        when(barberService.createBarber(any(BarberCreateDTO.class), any())).thenThrow(new IllegalArgumentException("Invalid data"));
 
         mockMvc.perform(multipart("/barber")
                         .file(barberFile)

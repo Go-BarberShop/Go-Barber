@@ -18,7 +18,7 @@ public class BarberServiceTest {
     @Test
     public void testBarberCreation() {
         Address address = new Address(1, "Rua A", 123, "Bairro B", "Cidade C", "Estado D", "12345-678");
-        Barber barber = new Barber(1, "João", "123.456.789-10", address, 3000.00, LocalDate.now(), null, 40,null);
+        Barber barber = new Barber(1, "João", "123.456.789-10", address, 3000.00, LocalDate.now(), null, 40,null, null);
 
         assertEquals(1, barber.getIdBarber());
         assertEquals("João", barber.getName());
@@ -50,6 +50,7 @@ public class BarberServiceTest {
                 LocalDate.now(),
                 null,
                 40,
+                null,
                 null);
 
         assertNull(barber.getProfilePhoto());

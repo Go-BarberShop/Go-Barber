@@ -39,7 +39,7 @@ public class Address {
     @NotBlank(message = "Estado é obrigatório")
     @Column(name = "state")
     private String state;
-    
+
     @Column(name = "cep")
     private String cep;
 
