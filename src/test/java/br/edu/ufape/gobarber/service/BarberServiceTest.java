@@ -1,17 +1,12 @@
 package br.edu.ufape.gobarber.service;
 
-import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
-import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.model.Barber;
-import br.edu.ufape.gobarber.service.BarberService;
 import org.junit.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 

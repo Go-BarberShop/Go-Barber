@@ -1,22 +1,24 @@
 package br.edu.ufape.gobarber.service;
 
 import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
+import br.edu.ufape.gobarber.dto.barber.BarberUpdateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberServiceDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberWithServiceDTO;
 import br.edu.ufape.gobarber.dto.page.PageBarberDTO;
-import br.edu.ufape.gobarber.dto.page.PageProductDTO;
 import br.edu.ufape.gobarber.dto.services.ServicesDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.model.Barber;
 import br.edu.ufape.gobarber.model.Services;
+import br.edu.ufape.gobarber.model.login.User;
 import br.edu.ufape.gobarber.repository.AddressRepository;
 import br.edu.ufape.gobarber.repository.BarberRepository;
+import br.edu.ufape.gobarber.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,12 +38,17 @@ public class BarberService {
     private final BarberRepository barberRepository;
     private final AddressRepository addressRepository;
     private final ServicesService servicesService;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
+    private final UserRepository userRepository;
 
     @Transactional
     public BarberWithServiceDTO createBarber(@Valid BarberCreateDTO barberCreateDTO, MultipartFile profilePhoto) throws DataBaseException {
         try {
 
-            Barber barber = convertDTOtoEntity(barberCreateDTO);
+            Barber barber = convertCreateDTOtoEntity(barberCreateDTO);
+
+            barber.setUser(userRepository.save(barber.getUser()));
 
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
                 barber.setProfilePhoto(profilePhoto.getBytes());
@@ -143,7 +150,7 @@ public class BarberService {
         return convertToCompleteDTO(barber);
     }
 
-    private Barber convertDTOtoEntity(BarberCreateDTO barberCreateDTO) {
+    private Barber convertCreateDTOtoEntity(BarberCreateDTO barberCreateDTO) {
         Barber barber = new Barber();
         barber.setName(barberCreateDTO.getName());
         barber.setCpf(barberCreateDTO.getCpf());
@@ -156,6 +163,29 @@ public class BarberService {
         barber.setSalary(barberCreateDTO.getSalary());
         barber.setAdmissionDate(barberCreateDTO.getAdmissionDate());
         barber.setWorkload(barberCreateDTO.getWorkload());
+
+        User user = new User();
+        user.setLogin(barberCreateDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(barberCreateDTO.getPassword()));
+        user.setRole(roleService.findRoleByNome("ROLE_BARBER"));
+        barber.setUser(user);
+
+        return barber;
+    }
+
+    private Barber convertUpdateDTOtoEntity(BarberUpdateDTO barberUpdateDTO) {
+        Barber barber = new Barber();
+        barber.setName(barberUpdateDTO.getName());
+        barber.setCpf(barberUpdateDTO.getCpf());
+
+        // Buscar o endereço pelo ID fornecido
+        Address address = addressRepository.findById(barberUpdateDTO.getAddressId())
+                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+
+        barber.setAddress(address);
+        barber.setSalary(barberUpdateDTO.getSalary());
+        barber.setAdmissionDate(barberUpdateDTO.getAdmissionDate());
+        barber.setWorkload(barberUpdateDTO.getWorkload());
         return barber;
     }
 
@@ -178,6 +208,8 @@ public class BarberService {
                 .map(servicesService::convertServicesToDTO)
                 .collect(Collectors.toSet());
         dto.setServices(serviceDTOs);
+
+        dto.setEmail(barber.getUser().getLogin());
 
         return dto;
     }

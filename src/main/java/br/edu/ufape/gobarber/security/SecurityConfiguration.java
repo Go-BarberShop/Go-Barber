@@ -30,6 +30,7 @@ public class SecurityConfiguration {
                         .antMatchers("/auth/**", "/").permitAll()
                         .antMatchers("/stock/**").hasRole("ADMIN")
                         .antMatchers("/services/**").hasRole("ADMIN")
+                        .antMatchers("/sale/**").hasRole("ADMIN")
                         .antMatchers("/product/**").hasRole("ADMIN")
                         .antMatchers("/barber/**").hasAnyRole("ADMIN", "BARBER")
                         .antMatchers("/address/**").hasAnyRole("ADMIN", "BARBER")

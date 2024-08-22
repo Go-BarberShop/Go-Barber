@@ -22,6 +22,9 @@ public class BarberWithServiceDTO {
     @Schema(description = "Nome do barbeiro", example = "Zé Tramontina")
     private String name;
 
+    @Schema(description = "Email de login", example = "barber@gobarber.com")
+    private String email;
+
     @Schema(description = "Cpf do barbeiro", example = "12345678910")
     private String cpf;
 

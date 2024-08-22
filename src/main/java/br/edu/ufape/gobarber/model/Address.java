@@ -39,8 +39,7 @@ public class Address {
     @NotBlank(message = "Estado é obrigatório")
     @Column(name = "state")
     private String state;
-
-    @Pattern(regexp = "\\d{5}-\\d{3}", message = "CEP inválido")
+    
     @Column(name = "cep")
     private String cep;
 

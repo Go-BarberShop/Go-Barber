@@ -11,15 +11,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Setter
 @Getter
-public class BarberCreateDTO {
-
-    private String email;
-    private String password;
+public class BarberUpdateDTO {
     private String name;
     private String cpf;
     private Integer addressId;
     private double salary;
     private LocalDate admissionDate;
     private Integer workload;
-
 }

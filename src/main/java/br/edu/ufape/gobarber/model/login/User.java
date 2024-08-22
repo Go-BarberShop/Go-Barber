@@ -1,6 +1,9 @@
 package br.edu.ufape.gobarber.model.login;
 
+import br.edu.ufape.gobarber.model.Barber;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity(name = "Employee")
 public class User implements UserDetails {
 

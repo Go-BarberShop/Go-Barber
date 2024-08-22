@@ -187,4 +187,17 @@
         </sql>
     </changeSet>
 
+    <changeSet id="8" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            ALTER TABLE BARBER
+            ADD COLUMN id_user INTEGER NOT NULL;
+
+            ALTER TABLE BARBER
+            ADD CONSTRAINT fk_user_barber
+            FOREIGN KEY (id_user) REFERENCES EMPLOYEE(id_user);
+
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
