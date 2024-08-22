@@ -143,8 +143,6 @@
     <changeSet id="6" author="carlos-bahia">
         <sql dbms="postgresql">
 
-            ALTER TABLE BARBER_X_SERVICE DROP CONSTRAINT fk_service;
-            ALTER TABLE BARBER_X_SERVICE DROP CONSTRAINT fk_barber;
             ALTER TABLE BARBER_X_SERVICE DROP CONSTRAINT barber_x_service_id_service_fkey;
             ALTER TABLE BARBER_X_SERVICE DROP CONSTRAINT barber_x_service_id_barber_fkey;
 
@@ -156,6 +154,35 @@
             ADD CONSTRAINT fk_barber_service
             FOREIGN KEY (id_barber) REFERENCES BARBER(id_barber) ON DELETE CASCADE;
 
+
+        </sql>
+    </changeSet>
+
+    <changeSet id="7" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            CREATE TABLE ROLE (
+                id_role SERIAL PRIMARY KEY,
+                name_role VARCHAR(20) NOT NULL
+            );
+
+            CREATE TABLE EMPLOYEE (
+                id_user SERIAL PRIMARY KEY,
+                email VARCHAR(50) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                id_role INTEGER NOT NULL,
+                CONSTRAINT fk_employee_role
+                    FOREIGN KEY (id_role) REFERENCES ROLE(id_role)
+            );
+
+            insert into role (name_role)
+            VALUES('ROLE_ADMIN');
+
+            insert into ROLE (name_role)
+            VALUES('ROLE_BARBER');
+
+            insert into ROLE (name_role)
+            VALUES('ROLE_SECRETARY');
 
         </sql>
     </changeSet>
