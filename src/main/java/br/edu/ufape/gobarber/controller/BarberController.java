@@ -1,6 +1,7 @@
 package br.edu.ufape.gobarber.controller;
 
 import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
+import br.edu.ufape.gobarber.dto.barber.BarberUpdateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberServiceDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberWithServiceDTO;
 import br.edu.ufape.gobarber.dto.page.PageBarberDTO;
@@ -17,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/barber")
@@ -36,14 +36,12 @@ public class BarberController {
                                                @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto) throws DataBaseException {
         ObjectMapper objectMapper = new ObjectMapper();
         BarberCreateDTO barber;
-        // Registrar o módulo para datas Java 8
         objectMapper.registerModule(new JavaTimeModule());
         try {
             barber = objectMapper.readValue(barberJson, BarberCreateDTO.class);
         } catch (IOException e) {
             throw new RuntimeException("Error parsing JSON", e);
         }
-        System.out.println(barber.toString());
         BarberWithServiceDTO newBarber = barberService.createBarber(barber, profilePhoto);
         return new ResponseEntity<>(newBarber, HttpStatus.CREATED);
     }

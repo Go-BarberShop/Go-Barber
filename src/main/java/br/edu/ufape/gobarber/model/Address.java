@@ -40,7 +40,6 @@ public class Address {
     @Column(name = "state")
     private String state;
 
-    @Pattern(regexp = "\\d{5}-\\d{3}", message = "CEP inválido")
     @Column(name = "cep")
     private String cep;
 

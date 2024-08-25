@@ -1,17 +1,12 @@
 package br.edu.ufape.gobarber.service;
 
-import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
-import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.model.Barber;
-import br.edu.ufape.gobarber.service.BarberService;
 import org.junit.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -23,7 +18,7 @@ public class BarberServiceTest {
     @Test
     public void testBarberCreation() {
         Address address = new Address(1, "Rua A", 123, "Bairro B", "Cidade C", "Estado D", "12345-678");
-        Barber barber = new Barber(1, "João", "123.456.789-10", address, 3000.00, LocalDate.now(), null, 40,null);
+        Barber barber = new Barber(1, "João", "123.456.789-10", address, 3000.00, LocalDate.now(), null, 40,null, null);
 
         assertEquals(1, barber.getIdBarber());
         assertEquals("João", barber.getName());
@@ -55,6 +50,7 @@ public class BarberServiceTest {
                 LocalDate.now(),
                 null,
                 40,
+                null,
                 null);
 
         assertNull(barber.getProfilePhoto());

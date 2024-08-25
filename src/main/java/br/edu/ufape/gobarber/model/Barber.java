@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.model;
 
+import br.edu.ufape.gobarber.model.login.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,6 +44,10 @@ public class Barber {
 
     @Column(name = "workload")
     private Integer workload;
+
+    @OneToOne
+    @JoinColumn(name = "id_user", nullable = false)
+    private User user;
 
     @ManyToMany
     @JoinTable(
