@@ -200,4 +200,16 @@
         </sql>
     </changeSet>
 
+    <changeSet id="9" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            CREATE TABLE TOKEN(
+                id_token SERIAL PRIMARY KEY,
+                token VARCHAR(255) UNIQUE,
+                expiration TIMESTAMP
+            )
+
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
