@@ -82,7 +82,7 @@ public class TokenService {
     }
 
     @Async
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 1800000)
     protected void deleteExpiredTokens() {
         List<InvalidTokens> tokens = invalidTokenRepository.findAllByExpirationBefore(LocalDateTime.now());
 
