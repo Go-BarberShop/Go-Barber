@@ -14,7 +14,10 @@ import br.edu.ufape.gobarber.model.login.User;
 import br.edu.ufape.gobarber.repository.AddressRepository;
 import br.edu.ufape.gobarber.repository.BarberRepository;
 import br.edu.ufape.gobarber.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +45,10 @@ public class BarberService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserRepository userRepository;
+    private final UserService userService;
+
+    @Value("${jwt.secret}")
+    private String secret;
 
     @Transactional
     public BarberWithServiceDTO createBarber(@Valid BarberCreateDTO barberCreateDTO, MultipartFile profilePhoto) throws DataBaseException {
@@ -95,6 +103,21 @@ public class BarberService {
                 .orElseThrow(() -> new DataBaseException("Barbeiro não encontrado!")));
     }
 
+    public BarberWithServiceDTO getBarber(HttpServletRequest request) throws DataBaseException {
+        String token = request.getHeader("Authorization");
+        Optional<User> user = userService.findById(getJtiFromToken(token));
+
+        if (user.isPresent()){
+            Optional<Barber> barber = barberRepository.findByUser(user.get());
+
+            if(barber.isPresent()) {
+                return convertToCompleteDTO(barber.get());
+            }
+
+        }
+        throw new DataBaseException("Não existe perfil de barbeiro associado a esse login");
+    }
+
     public PageBarberDTO getAllBarbers(Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Barber> barbers =  barberRepository.findAll(pageable);
@@ -114,6 +137,21 @@ public class BarberService {
                 .orElseThrow(() -> new DataBaseException("Barbeiro não encontrado!"));
 
         return barber.getProfilePhoto();
+    }
+
+    public byte[] getProfilePhoto(HttpServletRequest request) throws DataBaseException {
+        String token = request.getHeader("Authorization");
+        Optional<User> user = userService.findById(getJtiFromToken(token));
+
+        if (user.isPresent()){
+            Optional<Barber> barber = barberRepository.findByUser(user.get());
+
+            if(barber.isPresent()) {
+                return barber.get().getProfilePhoto();
+            }
+
+        }
+        throw new DataBaseException("Não existe perfil de barbeiro associado a esse login");
     }
 
     @Transactional
@@ -214,4 +252,11 @@ public class BarberService {
         return dto;
     }
 
+    private Integer getJtiFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token.replace("Bearer", ""))
+                .getBody();
+        return Integer.parseInt(claims.getId()); // jti é armazenado como ID no Claims
+    }
 }

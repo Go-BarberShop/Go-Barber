@@ -84,9 +84,7 @@ public class TokenService {
     protected void deleteExpiredTokens() {
         List<InvalidTokens> tokens = invalidTokenRepository.findAllByExpirationBefore(LocalDateTime.now());
 
-        for(InvalidTokens token : tokens){
-            invalidTokenRepository.delete(token);
-        }
+        invalidTokenRepository.deleteAll(tokens);
 
     }
 
