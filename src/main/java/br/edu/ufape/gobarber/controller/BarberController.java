@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 
@@ -92,6 +93,23 @@ public class BarberController {
         return new ResponseEntity<>(barber, HttpStatus.OK);
     }
 
+    @GetMapping("/logged-barber")
+    public ResponseEntity<BarberWithServiceDTO> getLoggedBarberInfo(HttpServletRequest request) throws DataBaseException {
+        BarberWithServiceDTO barber = barberService.getBarber(request);
+
+        return new ResponseEntity<>(barber, HttpStatus.OK);
+    }
+
+    @GetMapping("/logged-barber/picture")
+    public ResponseEntity<byte[]> getLoggedBarberProfilePhoto(HttpServletRequest request) throws DataBaseException {
+        return getProfilePhoto(barberService.getProfilePhoto(request));
+    }
+
+    @GetMapping("/{id}/profile-photo")
+    public ResponseEntity<byte[]> getProfilePhoto(@PathVariable Integer id) throws DataBaseException {
+        return getProfilePhoto(barberService.getProfilePhoto(id));
+    }
+
     @GetMapping
     public ResponseEntity<PageBarberDTO> getAllBarbers(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
                                                        @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
@@ -99,9 +117,8 @@ public class BarberController {
         return new ResponseEntity<>(barbers, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/profile-photo")
-    public ResponseEntity<byte[]> getProfilePhoto(@PathVariable Integer id) throws DataBaseException {
-        byte[] image = barberService.getProfilePhoto(id);
+    private ResponseEntity<byte[]> getProfilePhoto(byte[] profilePhoto) throws DataBaseException {
+        byte[] image = profilePhoto;
 
         if (image == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

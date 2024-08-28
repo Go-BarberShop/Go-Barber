@@ -53,19 +53,17 @@ public class TokenService {
     }
 
     public UsernamePasswordAuthenticationToken isValid(String token) {
-        if (token != null) {
-            if (invalidTokenRepository.findByTokenContains(token) == null) {
-                Claims body = Jwts.parser()
-                        .setSigningKey(secret)
-                        .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-                        .getBody();
+        if (token != null && invalidTokenRepository.findByTokenContains(token) == null) {
+            Claims body = Jwts.parser()
+                    .setSigningKey(secret)
+                    .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                    .getBody();
 
-                String user = body.get(Claims.ID, String.class);
-                if (user != null) {
-                    String role = body.get(CARGOS_CLAIM, String.class);
-                    List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
-                    return new UsernamePasswordAuthenticationToken(user, null, authorities);
-                }
+            String user = body.get(Claims.ID, String.class);
+            if (user != null) {
+                String role = body.get(CARGOS_CLAIM, String.class);
+                List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
+                return new UsernamePasswordAuthenticationToken(user, null, authorities);
             }
         }
         return null;
@@ -82,13 +80,11 @@ public class TokenService {
     }
 
     @Async
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 1800000)
     protected void deleteExpiredTokens() {
         List<InvalidTokens> tokens = invalidTokenRepository.findAllByExpirationBefore(LocalDateTime.now());
 
-        for(InvalidTokens token : tokens){
-            invalidTokenRepository.delete(token);
-        }
+        invalidTokenRepository.deleteAll(tokens);
 
     }
 
