@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,6 +45,15 @@ public class Barber {
 
     @Column(name = "workload")
     private Integer workload;
+
+    @Column(name = "contact")
+    private String contato;
+
+    @Column(name = "start_working")
+    private LocalTime start;
+
+    @Column(name = "end_working")
+    private LocalTime end;
 
     @OneToOne
     @JoinColumn(name = "id_user", nullable = false)

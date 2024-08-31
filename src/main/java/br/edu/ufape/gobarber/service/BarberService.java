@@ -2,7 +2,6 @@ package br.edu.ufape.gobarber.service;
 
 import br.edu.ufape.gobarber.dto.address.AddressCreateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
-import br.edu.ufape.gobarber.dto.barber.BarberUpdateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberServiceDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberWithServiceDTO;
 import br.edu.ufape.gobarber.dto.page.PageBarberDTO;
@@ -30,6 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -214,6 +215,15 @@ public class BarberService {
         barber.setSalary(barberCreateDTO.getSalary());
         barber.setAdmissionDate(barberCreateDTO.getAdmissionDate());
         barber.setWorkload(barberCreateDTO.getWorkload());
+        barber.setContato(barberCreateDTO.getContato());
+
+        LocalTime time = LocalTime.parse(barberCreateDTO.getStart(), DateTimeFormatter.ofPattern("HH:mm"));
+
+        barber.setStart(time);
+
+        time = LocalTime.parse(barberCreateDTO.getEnd(), DateTimeFormatter.ofPattern("HH:mm"));
+
+        barber.setEnd(time);
 
         User user = new User();
         user.setLogin(barberCreateDTO.getEmail());
@@ -221,22 +231,6 @@ public class BarberService {
         user.setRole(roleService.findRoleByNome("ROLE_BARBER"));
         barber.setUser(user);
 
-        return barber;
-    }
-
-    private Barber convertUpdateDTOtoEntity(BarberUpdateDTO barberUpdateDTO) {
-        Barber barber = new Barber();
-        barber.setName(barberUpdateDTO.getName());
-        barber.setCpf(barberUpdateDTO.getCpf());
-
-        // Buscar o endereço pelo ID fornecido
-        Address address = addressRepository.findById(barberUpdateDTO.getAddressId())
-                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
-
-        barber.setAddress(address);
-        barber.setSalary(barberUpdateDTO.getSalary());
-        barber.setAdmissionDate(barberUpdateDTO.getAdmissionDate());
-        barber.setWorkload(barberUpdateDTO.getWorkload());
         return barber;
     }
 
@@ -253,6 +247,16 @@ public class BarberService {
         dto.setSalary(barber.getSalary());
         dto.setAdmissionDate(barber.getAdmissionDate());
         dto.setWorkload(barber.getWorkload());
+        dto.setContato(barber.getContato());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        String timeString = barber.getStart().format(formatter);
+
+        dto.setStart(timeString);
+
+        timeString = barber.getEnd().format(formatter);
+
+        dto.setEnd(timeString);
 
         // Converter o conjunto de Services para um conjunto de ServiceDTO
         Set<ServicesDTO> serviceDTOs = barber.getServices().stream()

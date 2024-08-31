@@ -28,21 +28,6 @@ import java.util.Map;
 public class AuthController {
     private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
-
-    @PostMapping("/create")
-    public ResponseEntity<Void> create(@RequestBody LoginDTO loginDTO) {
-        User user = new User();
-        user.setLogin(loginDTO.getLogin());
-        user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
-        user.setRole(roleRepository.findByNameIgnoreCase("ROLE_ADMIN").get());
-        userRepository.save(user);
-
-        Void Void = null;
-        return new ResponseEntity<>(Void, HttpStatus.OK);
-    }
     
     @PostMapping
     public ResponseEntity<Map<String, String>> auth(@RequestBody @Valid LoginDTO loginDTO) {

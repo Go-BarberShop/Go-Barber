@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -43,4 +44,8 @@ public class BarberWithServiceDTO {
 
     @Schema(description = "Serviços autorizados para o barbeiro")
     private Set<ServicesDTO> services;
+
+    private String contato;
+    private String start;
+    private String end;
 }

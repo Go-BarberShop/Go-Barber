@@ -1,6 +1,7 @@
 package br.edu.ufape.gobarber.controller;
 
 import br.edu.ufape.gobarber.controller.AddressController;
+import br.edu.ufape.gobarber.dto.address.AddressCreateDTO;
 import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.service.AddressService;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
@@ -44,7 +45,7 @@ public class AddressControllerTest {
     @BeforeEach
     public void setUp() {
         address = new Address();
-        address.setIdAddress(1);
+        address.setIdAddress(Integer.valueOf("1"));
         address.setStreet("123 Main St");
         address.setCity("Springfield");
         address.setState("IL");
@@ -60,7 +61,7 @@ public class AddressControllerTest {
         address.setCep("62704-000");
         address.setNeighborhood("Downtown"); // Adicione todos os campos obrigatórios
 
-        when(addressService.creatAddress(any(Address.class))).thenReturn(address);
+        when(addressService.creatAddress(any(AddressCreateDTO.class))).thenReturn(address);
 
         mockMvc.perform(post("/address")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -152,7 +153,7 @@ public class AddressControllerTest {
         addressWithNullFields.setState("TN");
         addressWithNullFields.setCep("37201");
 
-        when(addressService.creatAddress(any(Address.class))).thenReturn(addressWithNullFields);
+        when(addressService.creatAddress(any(AddressCreateDTO.class))).thenReturn(addressWithNullFields);
 
         mockMvc.perform(post("/address")
                         .contentType(MediaType.APPLICATION_JSON)

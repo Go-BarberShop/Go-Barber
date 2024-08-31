@@ -1,12 +1,10 @@
 package br.edu.ufape.gobarber.controller;
 
 import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
-import br.edu.ufape.gobarber.dto.barber.BarberUpdateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberServiceDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberWithServiceDTO;
 import br.edu.ufape.gobarber.dto.page.PageBarberDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
-import br.edu.ufape.gobarber.model.Barber;
 import br.edu.ufape.gobarber.service.BarberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
