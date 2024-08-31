@@ -13,6 +13,7 @@ import br.edu.ufape.gobarber.model.Services;
 import br.edu.ufape.gobarber.model.login.User;
 import br.edu.ufape.gobarber.repository.AddressRepository;
 import br.edu.ufape.gobarber.repository.BarberRepository;
+import br.edu.ufape.gobarber.repository.ServicesRepository;
 import br.edu.ufape.gobarber.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -31,10 +32,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,6 +47,7 @@ public class BarberService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final AddressService addressService;
+    private final ServicesRepository servicesRepository;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -100,6 +99,10 @@ public class BarberService {
         barber.setSalary(barberCreateDTO.getSalary());
         barber.setAdmissionDate(barberCreateDTO.getAdmissionDate());
         barber.setWorkload(barberCreateDTO.getWorkload());
+
+        Barber barber2 = convertCreateDTOtoEntity(barberCreateDTO);
+
+        barber.setServices(barber2.getServices());
 
         if (profilePhoto != null && !profilePhoto.isEmpty()) {
             try {
@@ -207,7 +210,7 @@ public class BarberService {
         return convertToCompleteDTO(barber);
     }
 
-    private Barber convertCreateDTOtoEntity(BarberCreateDTO barberCreateDTO) {
+    private Barber convertCreateDTOtoEntity(BarberCreateDTO barberCreateDTO) throws DataBaseException {
         Barber barber = new Barber();
         barber.setName(barberCreateDTO.getName());
         barber.setCpf(barberCreateDTO.getCpf());
@@ -231,6 +234,15 @@ public class BarberService {
         user.setRole(roleService.findRoleByNome("ROLE_BARBER"));
         barber.setUser(user);
 
+        List<Integer> idServices = barberCreateDTO.getIdServices();
+        Set<Services> services = new HashSet<>();
+
+        for(Integer id : idServices){
+            services.add(servicesService.getServiceEntity(id));
+        }
+
+        barber.setServices(services);
+
         return barber;
     }
 
@@ -249,14 +261,19 @@ public class BarberService {
         dto.setWorkload(barber.getWorkload());
         dto.setContato(barber.getContato());
 
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        String timeString = barber.getStart().format(formatter);
+        String timeString;
 
+        if(barber.getStart() != null) {
+            timeString = barber.getStart().format(formatter);
         dto.setStart(timeString);
+        }
 
-        timeString = barber.getEnd().format(formatter);
-
-        dto.setEnd(timeString);
+        if(barber.getEnd() != null) {
+            timeString = barber.getEnd().format(formatter);
+            dto.setEnd(timeString);
+        }
 
         // Converter o conjunto de Services para um conjunto de ServiceDTO
         Set<ServicesDTO> serviceDTOs = barber.getServices().stream()
