@@ -30,7 +30,6 @@ public class BarberWithServiceDTO {
     @Schema(description = "Cpf do barbeiro", example = "12345678910")
     private String cpf;
 
-    @Schema(description = "Endereço do barbeiro", example = "Rua dos bobos")
     private Address address;
 
     @Schema(description = "Salário do barbeiro", example = "100000")
