@@ -21,7 +21,7 @@ public class BarberServiceTest {
         Address address = new Address(1, "Rua A", 123, "Bairro B", "Cidade C", "Estado D", "12345-678");
         Barber barber = new Barber(
                 1, // idBarber
-                "João Silva", // name
+                "João", // name
                 "123.456.789-00", // cpf
                 address, // address
                 3000.0, // salary
@@ -37,10 +37,10 @@ public class BarberServiceTest {
 
         assertEquals(1, barber.getIdBarber());
         assertEquals("João", barber.getName());
-        assertEquals("123.456.789-10", barber.getCpf());
+        assertEquals("123.456.789-00", barber.getCpf());
         assertEquals(address, barber.getAddress());
         assertEquals(3000.00, barber.getSalary());
-        assertEquals(LocalDate.now(), barber.getAdmissionDate());
+        assertEquals(LocalDate.of(2022, 1, 15), barber.getAdmissionDate());
         assertEquals(40, barber.getWorkload());
     }
 
@@ -65,7 +65,7 @@ public class BarberServiceTest {
                 address, // address
                 3000.0, // salary
                 LocalDate.of(2022, 1, 15), // admissionDate
-                new byte[]{0, 1, 2, 3, 4, 5}, // profilePhoto
+                null, // profilePhoto
                 40, // workload
                 "11-98765-4321", // contato
                 LocalTime.of(8, 0), // start
