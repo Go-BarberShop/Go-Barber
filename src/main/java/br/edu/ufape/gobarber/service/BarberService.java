@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.service;
 
+import br.edu.ufape.gobarber.dto.address.AddressCreateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberUpdateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberServiceDTO;
@@ -46,6 +47,7 @@ public class BarberService {
     private final RoleService roleService;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final AddressService addressService;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -54,9 +56,14 @@ public class BarberService {
     public BarberWithServiceDTO createBarber(@Valid BarberCreateDTO barberCreateDTO, MultipartFile profilePhoto) throws DataBaseException {
         try {
 
+            AddressCreateDTO addressCreateDTO = barberCreateDTO.getAddress();
+
+            Address address = addressService.creatAddress(addressCreateDTO);
+
             Barber barber = convertCreateDTOtoEntity(barberCreateDTO);
 
             barber.setUser(userRepository.save(barber.getUser()));
+            barber.setAddress(address);
 
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
                 barber.setProfilePhoto(profilePhoto.getBytes());
@@ -71,16 +78,27 @@ public class BarberService {
     }
 
     @Transactional
-    public BarberWithServiceDTO updateBarber(Integer id, Barber updatedBarber, MultipartFile profilePhoto) throws DataBaseException {
+    public BarberWithServiceDTO updateBarber(Integer id, BarberCreateDTO barberCreateDTO, MultipartFile profilePhoto) throws DataBaseException {
         Barber barber = barberRepository.findById(id)
                 .orElseThrow(() -> new DataBaseException("Barbeiro não encontrado no banco de dados"));
 
-        barber.setName(updatedBarber.getName());
-        barber.setCpf(updatedBarber.getCpf());
-        barber.setAddress(updatedBarber.getAddress());
-        barber.setSalary(updatedBarber.getSalary());
-        barber.setAdmissionDate(updatedBarber.getAdmissionDate());
-        barber.setWorkload(updatedBarber.getWorkload());
+        AddressCreateDTO addressCreateDTO = barberCreateDTO.getAddress();
+        Address address = barber.getAddress();
+        address.setStreet(addressCreateDTO.getStreet());
+        address.setNumber(addressCreateDTO.getNumber());
+        address.setNeighborhood(addressCreateDTO.getNeighborhood());
+        address.setCity(addressCreateDTO.getCity());
+        address.setState(addressCreateDTO.getState());
+        address.setCep(addressCreateDTO.getCep());
+
+        address = addressRepository.save(address);
+
+        barber.setName(barberCreateDTO.getName());
+        barber.setCpf(barberCreateDTO.getCpf());
+        barber.setAddress(address);
+        barber.setSalary(barberCreateDTO.getSalary());
+        barber.setAdmissionDate(barberCreateDTO.getAdmissionDate());
+        barber.setWorkload(barberCreateDTO.getWorkload());
 
         if (profilePhoto != null && !profilePhoto.isEmpty()) {
             try {
@@ -193,11 +211,6 @@ public class BarberService {
         barber.setName(barberCreateDTO.getName());
         barber.setCpf(barberCreateDTO.getCpf());
 
-        // Buscar o endereço pelo ID fornecido
-        Address address = addressRepository.findById(barberCreateDTO.getAddressId())
-                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
-
-        barber.setAddress(address);
         barber.setSalary(barberCreateDTO.getSalary());
         barber.setAdmissionDate(barberCreateDTO.getAdmissionDate());
         barber.setWorkload(barberCreateDTO.getWorkload());
@@ -235,7 +248,7 @@ public class BarberService {
         dto.setCpf(barber.getCpf());
 
         // Converter Address para AddressDTO, supondo que você tenha um método para isso
-        dto.setAddress(barber.getAddress().getIdAddress());
+        dto.setAddress(barber.getAddress());
 
         dto.setSalary(barber.getSalary());
         dto.setAdmissionDate(barber.getAdmissionDate());

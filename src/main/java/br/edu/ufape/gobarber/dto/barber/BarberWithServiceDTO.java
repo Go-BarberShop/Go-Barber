@@ -1,6 +1,7 @@
 package br.edu.ufape.gobarber.dto.barber;
 
 import br.edu.ufape.gobarber.dto.services.ServicesDTO;
+import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.model.Services;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -29,7 +30,7 @@ public class BarberWithServiceDTO {
     private String cpf;
 
     @Schema(description = "Endereço do barbeiro", example = "Rua dos bobos")
-    private Integer address;
+    private Address address;
 
     @Schema(description = "Salário do barbeiro", example = "100000")
     private double salary;
