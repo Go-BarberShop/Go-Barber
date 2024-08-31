@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.service;
 
+import br.edu.ufape.gobarber.dto.address.AddressCreateDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.repository.AddressRepository;
@@ -17,8 +18,11 @@ public class AddressService {
     private final AddressRepository addressRepository;
 
     @Transactional
-    public Address creatAddress(Address address) throws DataBaseException {
+    public Address creatAddress(AddressCreateDTO addressCreateDTO) throws DataBaseException {
         try {
+
+            Address address = convertDTOtoEntity(addressCreateDTO);
+
             return addressRepository.save(address);
         } catch (Exception e) {
             throw new DataBaseException("Erro ao criar endereço: " + e.getMessage());
@@ -54,4 +58,14 @@ public class AddressService {
         return addressRepository.findAll();
     }
 
+    private Address convertDTOtoEntity(AddressCreateDTO dto) {
+        Address address = new Address();
+        address.setStreet(dto.getStreet());
+        address.setNumber(dto.getNumber());
+        address.setNeighborhood(dto.getNeighborhood());
+        address.setCity(dto.getCity());
+        address.setState(dto.getState());
+        address.setCep(dto.getCep());
+        return address;
+    }
 }

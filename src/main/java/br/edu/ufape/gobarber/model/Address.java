@@ -21,22 +21,18 @@ public class Address {
     @Column(name = "id_adress")
     private Integer idAddress;
 
-    @NotBlank(message = "Rua é obrigatória")
     @Column(name="street")
     private String street;
 
     @Column(name = "number")
     private Integer number;
 
-    @NotBlank(message = "Bairro é obrigatório")
     @JoinColumn(name = "neighborhood")
     private String neighborhood;
 
-    @NotBlank(message = "Cidade é obrigatória")
     @Column(name = "city")
     private String city;
 
-    @NotBlank(message = "Estado é obrigatório")
     @Column(name = "state")
     private String state;
 

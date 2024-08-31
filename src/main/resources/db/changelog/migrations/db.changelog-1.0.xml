@@ -212,4 +212,37 @@
         </sql>
     </changeSet>
 
+    <changeSet id="11" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            CREATE TABLE SECRETARY (
+                id_secretary SERIAL PRIMARY KEY,
+                name_secretary VARCHAR(100) NOT NULL,
+                cpf_secretary VARCHAR(11) UNIQUE NOT NULL,
+                id_adress INTEGER,
+                id_user INTEGER NOT NULL,
+                salary REAL NOT NULL,
+                admission_date DATE NOT NULL,
+                profile_photo BYTEA,
+                workload NUMERIC NOT NULL,
+                CONSTRAINT fk_adress_secretary
+                FOREIGN KEY (id_adress) REFERENCES ADDRESS(id_adress),
+                CONSTRAINT fk_user_secretary
+                FOREIGN KEY (id_user) REFERENCES EMPLOYEE(id_user)
+            );
+
+        </sql>
+    </changeSet>
+
+    <changeSet id="12" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            ALTER TABLE BARBER
+            ADD COLUMN contact VARCHAR(11),
+            ADD COLUMN start_working TIME,
+            ADD COLUMN end_working TIME
+
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

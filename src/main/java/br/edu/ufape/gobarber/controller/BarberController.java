@@ -1,12 +1,10 @@
 package br.edu.ufape.gobarber.controller;
 
 import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
-import br.edu.ufape.gobarber.dto.barber.BarberUpdateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberServiceDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberWithServiceDTO;
 import br.edu.ufape.gobarber.dto.page.PageBarberDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
-import br.edu.ufape.gobarber.model.Barber;
 import br.edu.ufape.gobarber.service.BarberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -47,6 +45,12 @@ public class BarberController {
         return new ResponseEntity<>(newBarber, HttpStatus.CREATED);
     }
 
+    @PostMapping("/create-without-photo")
+    public ResponseEntity<BarberWithServiceDTO> createBarberWithoutPicture(@RequestBody BarberCreateDTO barberCreateDTO) throws DataBaseException {
+        BarberWithServiceDTO barber = barberService.createBarber(barberCreateDTO, null);
+        return new ResponseEntity<>(barber, HttpStatus.CREATED);
+    }
+
     @PostMapping("/service")
     public ResponseEntity<BarberWithServiceDTO> addServiceToBarber(@RequestBody BarberServiceDTO barberServiceDTO) throws DataBaseException {
         BarberWithServiceDTO dto = barberService.addServiceToBarber(barberServiceDTO);
@@ -67,12 +71,12 @@ public class BarberController {
                                                @RequestPart(value = "barber") String barberJson,
                                                @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto) throws DataBaseException {
         ObjectMapper objectMapper = new ObjectMapper();
-        Barber updatedBarber;
+        BarberCreateDTO updatedBarber;
 
         // Registrar o módulo para datas Java 8
         objectMapper.registerModule(new JavaTimeModule());
         try {
-            updatedBarber = objectMapper.readValue(barberJson, Barber.class);
+            updatedBarber = objectMapper.readValue(barberJson, BarberCreateDTO.class);
         } catch (IOException e) {
             throw new RuntimeException("Error parsing JSON", e);
         }

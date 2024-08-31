@@ -1,11 +1,13 @@
 package br.edu.ufape.gobarber.dto.barber;
 
+import br.edu.ufape.gobarber.dto.address.AddressCreateDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +19,10 @@ public class BarberCreateDTO {
     private String password;
     private String name;
     private String cpf;
-    private Integer addressId;
+    private String contato;
+    private String start;
+    private String end;
+    private AddressCreateDTO address;
     private double salary;
     private LocalDate admissionDate;
     private Integer workload;

@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.controller;
 
+import br.edu.ufape.gobarber.dto.address.AddressCreateDTO;
 import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.service.AddressService;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
@@ -19,7 +20,7 @@ public class AddressController {
     private final AddressService addressService;
 
     @PostMapping
-    public ResponseEntity<Address> createAddress(@Valid @RequestBody Address address) throws DataBaseException {
+    public ResponseEntity<Address> createAddress(@Valid @RequestBody AddressCreateDTO address) throws DataBaseException {
         Address createdAddress = addressService.creatAddress(address);
         return new ResponseEntity<>(createdAddress, HttpStatus.CREATED);
     }

@@ -1,11 +1,12 @@
 package br.edu.ufape.gobarber.controller;
 
+import br.edu.ufape.gobarber.dto.address.AddressCreateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberCreateDTO;
-import br.edu.ufape.gobarber.dto.barber.BarberUpdateDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberServiceDTO;
 import br.edu.ufape.gobarber.dto.barber.BarberWithServiceDTO;
 import br.edu.ufape.gobarber.dto.page.PageBarberDTO;
 import br.edu.ufape.gobarber.dto.services.ServicesDTO;
+import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.service.BarberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,23 +44,23 @@ class BarberControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private BarberUpdateDTO barberUpdateDTO;
+    private BarberCreateDTO barberCreateDTO;
     private BarberWithServiceDTO barberWithServiceDTO;
 
     @BeforeEach
     public void setUp() {
-        barberUpdateDTO = new BarberUpdateDTO();
-        barberUpdateDTO.setName("John Doe");
-        barberUpdateDTO.setCpf("12345678901");
-        barberUpdateDTO.setAddressId(1);
-        barberUpdateDTO.setSalary(3000.00);
-        barberUpdateDTO.setAdmissionDate(LocalDate.now());
-        barberUpdateDTO.setWorkload(40);
+        barberCreateDTO = new BarberCreateDTO();
+        barberCreateDTO.setName("John Doe");
+        barberCreateDTO.setCpf("12345678901");
+        barberCreateDTO.setAddress(new AddressCreateDTO());
+        barberCreateDTO.setSalary(3000.00);
+        barberCreateDTO.setAdmissionDate(LocalDate.now());
+        barberCreateDTO.setWorkload(40);
 
         barberWithServiceDTO = new BarberWithServiceDTO();
         barberWithServiceDTO.setName("John Doe");
         barberWithServiceDTO.setCpf("12345678901");
-        barberWithServiceDTO.setAddress(1);
+        barberWithServiceDTO.setAddress(new Address());
         barberWithServiceDTO.setSalary(3000.00);
         barberWithServiceDTO.setAdmissionDate(LocalDate.now());
         barberWithServiceDTO.setWorkload(40);
@@ -67,7 +68,7 @@ class BarberControllerTest {
 
     @Test
     void deveCriarBarbeiroComSucesso() throws Exception {
-        MockMultipartFile barberFile = new MockMultipartFile("barber", "", "application/json", objectMapper.writeValueAsBytes(barberUpdateDTO));
+        MockMultipartFile barberFile = new MockMultipartFile("barber", "", "application/json", objectMapper.writeValueAsBytes(barberCreateDTO));
         MockMultipartFile profilePhoto = new MockMultipartFile("profilePhoto", "photo.jpg", "image/jpeg", new byte[0]);
 
         when(barberService.createBarber(any(BarberCreateDTO.class), any())).thenReturn(barberWithServiceDTO);
@@ -82,13 +83,11 @@ class BarberControllerTest {
 
     @Test
     void deveRetornarBadRequestQuandoCriarBarbeiroComDadosInvalidos() throws Exception {
-        // Criação de um objeto BarberUpdateDTO com dados inválidos (por exemplo, CPF inválido)
-        barberUpdateDTO.setCpf("invalid-cpf");
+        barberCreateDTO.setCpf("invalid-cpf");
 
-        MockMultipartFile barberFile = new MockMultipartFile("barber", "", "application/json", objectMapper.writeValueAsBytes(barberUpdateDTO));
+        MockMultipartFile barberFile = new MockMultipartFile("barber", "", "application/json", objectMapper.writeValueAsBytes(barberCreateDTO));
         MockMultipartFile profilePhoto = new MockMultipartFile("profilePhoto", "photo.jpg", "image/jpeg", new byte[0]);
 
-        // Configuração do mock para retornar uma exceção de validação
         when(barberService.createBarber(any(BarberCreateDTO.class), any())).thenThrow(new IllegalArgumentException("Invalid data"));
 
         mockMvc.perform(multipart("/barber")
