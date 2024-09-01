@@ -44,8 +44,8 @@ public class SecretaryController {
         objectMapper.registerModule(new JavaTimeModule());
         try {
             secretary = objectMapper.readValue(secretaryJson, SecretaryCreateDTO.class);
-        } catch (IOException e) {
-            throw new RuntimeException("Error parsing JSON", e);
+        } catch (Exception e) {
+            throw new JsonParsingException("Error parsing JSON", e);
         }
         SecretaryDTO newSecretary = secretaryService.createSecretary(secretary, profilePhoto);
         return new ResponseEntity<>(newSecretary, HttpStatus.CREATED);
