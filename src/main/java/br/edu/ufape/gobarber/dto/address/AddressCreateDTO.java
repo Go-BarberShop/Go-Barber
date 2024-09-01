@@ -1,5 +1,6 @@
 package br.edu.ufape.gobarber.dto.address;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @Setter
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AddressCreateDTO {
 
     @NotBlank(message = "Rua é obrigatória")
