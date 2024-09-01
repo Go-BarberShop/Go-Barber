@@ -8,8 +8,10 @@ import br.edu.ufape.gobarber.dto.page.PageSecretaryDTO;
 import br.edu.ufape.gobarber.dto.secretary.SecretaryCreateDTO;
 import br.edu.ufape.gobarber.dto.secretary.SecretaryDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
+import br.edu.ufape.gobarber.exceptions.JsonParsingException;
 import br.edu.ufape.gobarber.service.BarberService;
 import br.edu.ufape.gobarber.service.SecretaryService;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
@@ -66,8 +68,8 @@ public class SecretaryController {
         objectMapper.registerModule(new JavaTimeModule());
         try {
             updatedSecretarry = objectMapper.readValue(secretaryJson, SecretaryCreateDTO.class);
-        } catch (IOException e) {
-            throw new RuntimeException("Error parsing JSON", e);
+        } catch (Exception e) {
+            throw new JsonParsingException("Error parsing JSON", e);
         }
 
         SecretaryDTO updated = secretaryService.updateSecretary(id, updatedSecretarry, profilePhoto);
