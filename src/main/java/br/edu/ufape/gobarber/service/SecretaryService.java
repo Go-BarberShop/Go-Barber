@@ -5,6 +5,7 @@ import br.edu.ufape.gobarber.dto.page.PageSecretaryDTO;
 import br.edu.ufape.gobarber.dto.secretary.SecretaryCreateDTO;
 import br.edu.ufape.gobarber.dto.secretary.SecretaryDTO;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
+import br.edu.ufape.gobarber.exceptions.ProfileProcessingException;
 import br.edu.ufape.gobarber.model.Address;
 import br.edu.ufape.gobarber.model.Secretary;
 import br.edu.ufape.gobarber.model.login.User;
@@ -64,7 +65,7 @@ public class SecretaryService {
         } catch (IOException e) {
             throw new DataBaseException("Erro ao processar a foto de perfil.");
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ProfileProcessingException("Erro inesperado ao processar a foto de perfil", e);
         }
     }
 
