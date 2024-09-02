@@ -1,33 +1,31 @@
-package br.edu.ufape.gobarber.dto.barber;
+package br.edu.ufape.gobarber.dto.secretary;
 
 import br.edu.ufape.gobarber.dto.address.AddressCreateDTO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BarberCreateDTO {
+public class SecretaryCreateDTO {
 
     private String email;
     private String password;
     private String name;
     private String cpf;
-    private String contato;
+    private String contact;
     private String start;
     private String end;
     private AddressCreateDTO address;
     private double salary;
     private LocalDate admissionDate;
     private Integer workload;
-    private List<Integer> idServices;
 
 }

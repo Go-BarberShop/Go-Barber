@@ -269,4 +269,15 @@
         </sql>
     </changeSet>
 
+    <changeSet id="13" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            ALTER TABLE SECRETARY
+                ADD COLUMN contact VARCHAR(11),
+            ADD COLUMN start_working TIME,
+            ADD COLUMN end_working TIME
+
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

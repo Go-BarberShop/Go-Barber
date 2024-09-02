@@ -3,6 +3,7 @@ package br.edu.ufape.gobarber.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,6 +32,8 @@ public class SecurityConfiguration {
                         .antMatchers("/auth/logout").authenticated()
                         .antMatchers("/stock/**").hasRole("ADMIN")
                         .antMatchers("/services/**").hasRole("ADMIN")
+                        .antMatchers(HttpMethod.GET, "/services/**").hasAnyRole("ADMIN", "BARBER", "SECRETARY")
+                        .antMatchers("/secretary/**").hasAnyRole("ADMIN", "SECRETARY")
                         .antMatchers("/sale/**").hasRole("ADMIN")
                         .antMatchers("/product/**").hasRole("ADMIN")
                         .antMatchers("/barber/**").hasAnyRole("ADMIN", "BARBER")
