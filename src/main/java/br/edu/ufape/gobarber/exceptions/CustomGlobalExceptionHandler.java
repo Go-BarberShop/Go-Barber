@@ -82,4 +82,10 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(br.edu.ufape.gobarber.exception.ResourceNotFoundException.class)
+    public ResponseEntity<?> handleResourceNotFoundException(br.edu.ufape.gobarber.exception.ResourceNotFoundException ex, WebRequest request) {
+        // Cria uma resposta com a mensagem de erro e o status HTTP 404 Not Found
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 }
