@@ -246,7 +246,7 @@ public class BarberService {
         return barber;
     }
 
-    private BarberWithServiceDTO convertToCompleteDTO(Barber barber){
+    public BarberWithServiceDTO convertToCompleteDTO(Barber barber){
         BarberWithServiceDTO dto = new BarberWithServiceDTO();
 
         dto.setIdBarber(barber.getIdBarber());
@@ -292,5 +292,9 @@ public class BarberService {
                 .parseClaimsJws(token.replace("Bearer", ""))
                 .getBody();
         return Integer.parseInt(claims.getId()); // jti é armazenado como ID no Claims
+    }
+
+    public Barber getBarberEntity(Integer barberId) throws DataBaseException {
+        return barberRepository.findById(barberId).orElseThrow(() -> new DataBaseException("Barbeiro não encontrado"));
     }
 }
