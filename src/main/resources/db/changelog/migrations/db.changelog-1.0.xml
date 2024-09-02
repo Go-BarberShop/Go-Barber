@@ -212,30 +212,6 @@
         </sql>
     </changeSet>
 
-    <changeSet id="10" author="gustavo-wanderley">
-        <sql dbms="postgresql">
-
-            CREATE TABLE appointment (
-                                         id_appointment SERIAL PRIMARY KEY,
-                                         name_client VARCHAR(255) NOT NULL,
-                                         number_client VARCHAR(10) NOT NULL,
-                                         id_barber INTEGER,
-                                         start_time TIMESTAMP,
-                                         end_time TIMESTAMP,
-                                         FOREIGN KEY (id_barber) REFERENCES barber(id_barber)
-            );
-
-            CREATE TABLE appointment_service (
-                                                 id_appointment INTEGER,
-                                                 id_service INTEGER,
-                                                 PRIMARY KEY (id_appointment, id_service),
-                                                 FOREIGN KEY (id_appointment) REFERENCES appointment(id_appointment),
-                                                 FOREIGN KEY (id_service) REFERENCES service(id_service)
-            );
-
-        </sql>
-    </changeSet>
-
     <changeSet id="11" author="carlos-bahia">
         <sql dbms="postgresql">
 
