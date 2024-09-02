@@ -1,4 +1,7 @@
 # Go-Barber
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/85a85ea580e54e0e916dd2d05b52b340)](https://app.codacy.com/gh/Go-BarberShop/Go-Barber?utm_source=github.com&utm_medium=referral&utm_content=Go-BarberShop/Go-Barber&utm_campaign=Badge_Grade)
+
 <div align="center">
     <img height=200 src="https://media.tenor.com/QckgX69_GBoAAAAi/berlin-funny-haircut.gif">
 </div>
