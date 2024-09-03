@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/appointments")
 @Validated
@@ -60,6 +62,24 @@ public class AppointmentController {
                                                                       @RequestParam(value = "size", required = false, defaultValue = "10") Integer siz) throws DataBaseException {
         PageAppointmentDTO appointments = appointmentService.getAppointmentsByBarber(barberId, page, siz);
         return ResponseEntity.ok(appointments);
+    }
+
+    @GetMapping("/history/barber")
+    public ResponseEntity<PageAppointmentDTO> getHistory(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                                         @RequestParam(value = "size", required = false, defaultValue = "10") Integer siz,
+                                                         @RequestParam(value = "barberId") Integer barberId) throws DataBaseException {
+
+        PageAppointmentDTO appointmentDTO = appointmentService.getHistoryByBarber(page, siz, barberId);
+        return new ResponseEntity<>(appointmentDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<PageAppointmentDTO> getHistoryFromToken(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                                                    @RequestParam(value = "size", required = false, defaultValue = "10") Integer siz,
+                                                                  HttpServletRequest request) throws DataBaseException {
+
+        PageAppointmentDTO appointmentDTO = appointmentService.getHistoryFromToken(page, siz, request);
+        return new ResponseEntity<>(appointmentDTO, HttpStatus.OK);
     }
 
     // Excluir agendamento por ID

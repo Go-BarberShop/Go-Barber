@@ -6,7 +6,10 @@ import br.edu.ufape.gobarber.exceptions.InvalidRoleException;
 import br.edu.ufape.gobarber.exceptions.UniqueConstraintViolationException;
 import br.edu.ufape.gobarber.model.login.User;
 import br.edu.ufape.gobarber.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
 
+    @Value("${jwt.secret}")
+    private String secret;
 
     public Optional<User> findByLogin(String login) {
         return userRepository.findByLogin(login);
@@ -55,6 +60,14 @@ public class UserService {
         user.setRole(roleService.findRoleByNome("ROLE_" + newUser.getRole()));
 
         return user;
+    }
+
+    public Integer getJtiFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token.replace("Bearer", ""))
+                .getBody();
+        return Integer.parseInt(claims.getId()); // jti é armazenado como ID no Claims
     }
 }
 

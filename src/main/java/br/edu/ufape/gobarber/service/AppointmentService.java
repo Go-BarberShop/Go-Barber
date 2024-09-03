@@ -7,28 +7,56 @@ import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Appointment;
 import br.edu.ufape.gobarber.model.Barber;
 import br.edu.ufape.gobarber.model.Services;
+import br.edu.ufape.gobarber.model.login.User;
 import br.edu.ufape.gobarber.repository.AppointmentRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@RequiredArgsConstructor
 @Service
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final BarberService barberService;
     private final ServicesService servicesService;
+    private final UserService userService;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, BarberService barberService, ServicesService servicesService) {
-        this.appointmentRepository = appointmentRepository;
-        this.barberService = barberService;
-        this.servicesService = servicesService;
+    public PageAppointmentDTO getHistoryFromToken(Integer page, Integer size, HttpServletRequest request) throws DataBaseException {
+        String token = request.getHeader("Authorization");
+        Optional<User> user = userService.findById(userService.getJtiFromToken(token));
+
+        if (user.isPresent()){
+            Barber barber = barberService.getBarberEntity(user.get());
+
+            return getHistoryByBarber(page, size, barber.getIdBarber());
+
+        }
+        throw new DataBaseException("Não existe perfil de barbeiro associado a esse login");
+    }
+
+    public PageAppointmentDTO getHistoryByBarber(Integer page, Integer size, Integer barberId) throws DataBaseException {
+        Barber barber = barberService.getBarberEntity(barberId);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> pageApp =  appointmentRepository.findByBarberAndEndTimeBeforeOrderByStartTime(pageable,  barber, LocalDateTime.now());
+        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
+
+        return new PageAppointmentDTO(
+                appointmentDTOS.getTotalElements(),
+                appointmentDTOS.getTotalPages(),
+                appointmentDTOS.getPageable().getPageNumber(),
+                appointmentDTOS.getSize(),
+                appointmentDTOS.getContent()
+        );
     }
 
     // Salvar novo agendamento
@@ -62,6 +90,50 @@ public class AppointmentService {
         //Validar
 
         return convertEntityToDTO(appointmentRepository.save(appointment));
+    }
+
+    // Obter todos os agendamentos
+    public PageAppointmentDTO getAllAppointments(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> pageApp = appointmentRepository.findAllByOrderByStartTimeAsc(pageable);
+        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
+
+        return new PageAppointmentDTO(
+                appointmentDTOS.getTotalElements(),
+                appointmentDTOS.getTotalPages(),
+                appointmentDTOS.getPageable().getPageNumber(),
+                appointmentDTOS.getSize(),
+                appointmentDTOS.getContent()
+        );
+    }
+
+    // Obter agendamentos por barbeiro
+    public PageAppointmentDTO getAppointmentsByBarber(Integer barberid, Integer page, Integer size) throws DataBaseException {
+        Barber barber = barberService.getBarberEntity(barberid);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> pageApp =  appointmentRepository.findByBarber(barber, pageable);
+        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
+
+        return new PageAppointmentDTO(
+                appointmentDTOS.getTotalElements(),
+                appointmentDTOS.getTotalPages(),
+                appointmentDTOS.getPageable().getPageNumber(),
+                appointmentDTOS.getSize(),
+                appointmentDTOS.getContent()
+        );
+    }
+
+    // Obter agendamento por ID
+    public AppointmentDTO getAppointmentById(Integer id) throws DataBaseException {
+        Appointment appointment =  appointmentRepository.findById(id).orElseThrow(() -> new DataBaseException("Não existe agendamento com esse ID"));
+
+        return convertEntityToDTO(appointment);
+    }
+
+    // Excluir agendamento por ID
+    public void deleteAppointment(Integer id) {
+        appointmentRepository.deleteById(id);
     }
 
     // Verificar se o horário está ocupado por outro agendamento
@@ -125,49 +197,5 @@ public class AppointmentService {
         }
 
         return appointmentDTO;
-    }
-
-    // Obter todos os agendamentos
-    public PageAppointmentDTO getAllAppointments(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Appointment> pageApp = appointmentRepository.findAllByOrderByStartTimeAsc(pageable);
-        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
-
-        return new PageAppointmentDTO(
-                appointmentDTOS.getTotalElements(),
-                appointmentDTOS.getTotalPages(),
-                appointmentDTOS.getPageable().getPageNumber(),
-                appointmentDTOS.getSize(),
-                appointmentDTOS.getContent()
-        );
-    }
-
-    // Obter agendamentos por barbeiro
-    public PageAppointmentDTO getAppointmentsByBarber(Integer barberid, Integer page, Integer size) throws DataBaseException {
-        Barber barber = barberService.getBarberEntity(barberid);
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Appointment> pageApp =  appointmentRepository.findByBarber(barber, pageable);
-        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
-
-        return new PageAppointmentDTO(
-                appointmentDTOS.getTotalElements(),
-                appointmentDTOS.getTotalPages(),
-                appointmentDTOS.getPageable().getPageNumber(),
-                appointmentDTOS.getSize(),
-                appointmentDTOS.getContent()
-        );
-    }
-
-    // Obter agendamento por ID
-    public AppointmentDTO getAppointmentById(Integer id) throws DataBaseException {
-        Appointment appointment =  appointmentRepository.findById(id).orElseThrow(() -> new DataBaseException("Não existe agendamento com esse ID"));
-
-        return convertEntityToDTO(appointment);
-    }
-
-    // Excluir agendamento por ID
-    public void deleteAppointment(Integer id) {
-        appointmentRepository.deleteById(id);
     }
 }
