@@ -47,10 +47,7 @@ public class BarberService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final AddressService addressService;
-    private final ServicesRepository servicesRepository;
 
-    @Value("${jwt.secret}")
-    private String secret;
 
     @Transactional
     public BarberWithServiceDTO createBarber(@Valid BarberCreateDTO barberCreateDTO, MultipartFile profilePhoto) throws DataBaseException {
@@ -127,7 +124,7 @@ public class BarberService {
 
     public BarberWithServiceDTO getBarber(HttpServletRequest request) throws DataBaseException {
         String token = request.getHeader("Authorization");
-        Optional<User> user = userService.findById(getJtiFromToken(token));
+        Optional<User> user = userService.findById(userService.getJtiFromToken(token));
 
         if (user.isPresent()){
             Optional<Barber> barber = barberRepository.findByUser(user.get());
@@ -163,7 +160,7 @@ public class BarberService {
 
     public byte[] getProfilePhoto(HttpServletRequest request) throws DataBaseException {
         String token = request.getHeader("Authorization");
-        Optional<User> user = userService.findById(getJtiFromToken(token));
+        Optional<User> user = userService.findById(userService.getJtiFromToken(token));
 
         if (user.isPresent()){
             Optional<Barber> barber = barberRepository.findByUser(user.get());
@@ -286,15 +283,11 @@ public class BarberService {
         return dto;
     }
 
-    private Integer getJtiFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token.replace("Bearer", ""))
-                .getBody();
-        return Integer.parseInt(claims.getId()); // jti é armazenado como ID no Claims
-    }
-
     public Barber getBarberEntity(Integer barberId) throws DataBaseException {
         return barberRepository.findById(barberId).orElseThrow(() -> new DataBaseException("Barbeiro não encontrado"));
+    }
+
+    public Barber getBarberEntity(User user) throws DataBaseException {
+        return barberRepository.findByUser(user).orElseThrow(() -> new DataBaseException("Barbeiro não encontrado"));
     }
 }
