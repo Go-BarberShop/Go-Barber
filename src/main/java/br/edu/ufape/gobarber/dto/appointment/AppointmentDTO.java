@@ -23,6 +23,8 @@ import java.util.Set;
 @Getter
 public class AppointmentDTO {
 
+    private Integer id;
+
     private String clientName;
 
     private String clientNumber;

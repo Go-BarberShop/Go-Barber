@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -166,30 +165,33 @@ public class AppointmentService {
                 }
             }
 
-            if(appointment.getStartTime().isBefore(LocalDateTime.now())){
-                throw new AppointmentException("Não é possivel agendar para um dia/horário passado");
-            }
-
-            if(!isTimeSlotOccupied(appointment.getBarber(), appointment.getStartTime(), appointment.getEndTime())){
-                if(isTimeSlotOccupied(appointment.getBarber(), appointment.getStartTime(), appointment.getEndTime(), appointment.getId())){
-                    throw new AppointmentException("O barbeiro selecionado já está reservado nesse horário");
-                }
-            }
-
-            if((appointment.getStartTime().toLocalTime().isBefore(appointment.getBarber().getStart())) ||
-                (appointment.getStartTime().toLocalTime()).isAfter(appointment.getBarber().getEnd()) ||
-                (appointment.getEndTime().toLocalTime().isAfter(appointment.getBarber().getEnd()))){
-
-                throw new AppointmentException("O barbeiro selecionado não trabalha no horário agendado");
-            }
-
             if(appointment.getClientName().isBlank() || appointment.getClientNumber().isBlank()){
                 throw new AppointmentException("As informações do cliente são campos obrigatórios");
             }
 
+            isTimeValidated(appointment);
+
             return true;
         }
         throw new AppointmentException("O agendamento não pode ser nulo");
+    }
+
+    private void isTimeValidated(Appointment appointment){
+        if(appointment.getStartTime().isBefore(LocalDateTime.now())){
+            throw new AppointmentException("Não é possivel agendar para um dia/horário passado");
+        }
+
+        if(!isTimeSlotOccupied(appointment.getBarber(), appointment.getStartTime(), appointment.getEndTime()) &&
+                isTimeSlotOccupied(appointment.getBarber(), appointment.getStartTime(), appointment.getEndTime(), appointment.getId())){
+            throw new AppointmentException("O barbeiro selecionado já está reservado nesse horário");
+        }
+
+        if((appointment.getStartTime().toLocalTime().isBefore(appointment.getBarber().getStart())) ||
+                (appointment.getStartTime().toLocalTime()).isAfter(appointment.getBarber().getEnd()) ||
+                (appointment.getEndTime().toLocalTime().isAfter(appointment.getBarber().getEnd()))){
+
+            throw new AppointmentException("O barbeiro selecionado não trabalha no horário agendado");
+        }
     }
 
     // Verificar se o horário está ocupado por outro agendamento
@@ -237,6 +239,7 @@ public class AppointmentService {
     private AppointmentDTO convertEntityToDTO(Appointment appointment) {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
 
+        appointmentDTO.setId(appointment.getId());
         appointmentDTO.setClientName(appointment.getClientName());
         appointmentDTO.setClientNumber(appointment.getClientNumber());
         appointmentDTO.setBarber(barberService.convertToCompleteDTO(appointment.getBarber()));
