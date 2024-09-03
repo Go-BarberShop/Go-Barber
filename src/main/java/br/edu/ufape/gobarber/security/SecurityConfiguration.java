@@ -36,15 +36,17 @@ public class SecurityConfiguration {
                         .antMatchers("/secretary/**").hasAnyRole("ADMIN", "SECRETARY")
                         .antMatchers("/sale/**").hasRole("ADMIN")
                         .antMatchers("/product/**").hasRole("ADMIN")
+                        .antMatchers(HttpMethod.GET, "/barber/**").hasAnyRole("ADMIN", "SECRETARY", "BARBER")
                         .antMatchers("/barber/**").hasAnyRole("ADMIN", "BARBER")
                         .antMatchers("/address/**").hasAnyRole("ADMIN", "BARBER")
                         .antMatchers("/appointments/history", "/appointments/future/barber/own").hasRole("BARBER")
-                        .antMatchers("/appointments/**").hasAnyRole("ADMIN", "SECRETARY")
+                        .antMatchers("/appointments/**").hasAnyRole("ADMIN", "SECRETARY", "BARBER")
                         .anyRequest().denyAll()
                 );
 
         http.addFilterBefore(new TokenAuthenticationFilter(tokenService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
+        
     }
 
     @Bean
