@@ -34,4 +34,6 @@ public class AppointmentDTO {
     private String startTime;
 
     private String endTime;
+
+    private Double totalPrice;
 }

@@ -82,4 +82,13 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({AppointmentException.class})
+    public ResponseEntity<Object> handleException(AppointmentException exception,
+                                                  HttpServletRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", new Date());
+        body.put("status", HttpStatus.NOT_ACCEPTABLE.value());
+        body.put("message", exception.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.NOT_ACCEPTABLE);
+    }
 }

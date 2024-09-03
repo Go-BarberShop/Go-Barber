@@ -45,4 +45,7 @@ public class Appointment {
     @Column(name="end_time")
     private LocalDateTime endTime;
 
+    @Column(name = "total_price")
+    private Double totalPrice;
+
 }
