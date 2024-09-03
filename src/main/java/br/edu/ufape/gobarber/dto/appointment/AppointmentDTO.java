@@ -23,6 +23,8 @@ import java.util.Set;
 @Getter
 public class AppointmentDTO {
 
+    private Integer id;
+
     private String clientName;
 
     private String clientNumber;
@@ -34,4 +36,6 @@ public class AppointmentDTO {
     private String startTime;
 
     private String endTime;
+
+    private Double totalPrice;
 }

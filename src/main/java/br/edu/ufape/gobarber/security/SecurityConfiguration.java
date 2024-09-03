@@ -38,7 +38,7 @@ public class SecurityConfiguration {
                         .antMatchers("/product/**").hasRole("ADMIN")
                         .antMatchers("/barber/**").hasAnyRole("ADMIN", "BARBER")
                         .antMatchers("/address/**").hasAnyRole("ADMIN", "BARBER")
-                        .antMatchers("/appointments/history").hasRole("BARBER")
+                        .antMatchers("/appointments/history", "/appointments/future/barber/own").hasRole("BARBER")
                         .antMatchers("/appointments/**").hasAnyRole("ADMIN", "SECRETARY")
                         .anyRequest().denyAll()
                 );

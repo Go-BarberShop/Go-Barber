@@ -3,6 +3,7 @@ package br.edu.ufape.gobarber.service;
 import br.edu.ufape.gobarber.dto.appointment.AppointmentCreateDTO;
 import br.edu.ufape.gobarber.dto.appointment.AppointmentDTO;
 import br.edu.ufape.gobarber.dto.page.PageAppointmentDTO;
+import br.edu.ufape.gobarber.exceptions.AppointmentException;
 import br.edu.ufape.gobarber.exceptions.DataBaseException;
 import br.edu.ufape.gobarber.model.Appointment;
 import br.edu.ufape.gobarber.model.Barber;
@@ -43,6 +44,58 @@ public class AppointmentService {
         throw new DataBaseException("Não existe perfil de barbeiro associado a esse login");
     }
 
+    public PageAppointmentDTO getFutureAppointments(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> pageApp =  appointmentRepository.findByStartTimeAfterOrderByStartTime(pageable, LocalDateTime.now());
+        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
+
+        return new PageAppointmentDTO(
+                appointmentDTOS.getTotalElements(),
+                appointmentDTOS.getTotalPages(),
+                appointmentDTOS.getPageable().getPageNumber(),
+                appointmentDTOS.getSize(),
+                appointmentDTOS.getContent()
+        );
+    }
+
+    public PageAppointmentDTO getFutureAppointments(Integer page, Integer size, HttpServletRequest request) throws DataBaseException {
+        String token = request.getHeader("Authorization");
+        Optional<User> user = userService.findById(userService.getJtiFromToken(token));
+        Barber barber = null;
+        if (user.isPresent()){
+           barber = barberService.getBarberEntity(user.get());
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> pageApp =  appointmentRepository.findByBarberAndStartTimeAfterOrderByStartTime(pageable, barber, LocalDateTime.now());
+        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
+
+        return new PageAppointmentDTO(
+                appointmentDTOS.getTotalElements(),
+                appointmentDTOS.getTotalPages(),
+                appointmentDTOS.getPageable().getPageNumber(),
+                appointmentDTOS.getSize(),
+                appointmentDTOS.getContent()
+        );
+    }
+
+    public PageAppointmentDTO getFutureAppointments(Integer page, Integer size, Integer barberId) throws DataBaseException {
+        Barber barber = barberService.getBarberEntity(barberId);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> pageApp =  appointmentRepository.findByBarberAndStartTimeAfterOrderByStartTime(pageable, barber, LocalDateTime.now());
+        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
+
+        return new PageAppointmentDTO(
+                appointmentDTOS.getTotalElements(),
+                appointmentDTOS.getTotalPages(),
+                appointmentDTOS.getPageable().getPageNumber(),
+                appointmentDTOS.getSize(),
+                appointmentDTOS.getContent()
+        );
+    }
+
+
     public PageAppointmentDTO getHistoryByBarber(Integer page, Integer size, Integer barberId) throws DataBaseException {
         Barber barber = barberService.getBarberEntity(barberId);
 
@@ -60,21 +113,25 @@ public class AppointmentService {
     }
 
     // Salvar novo agendamento
-    public AppointmentDTO saveAppointment(AppointmentCreateDTO appointmentCreateDTO) throws DataBaseException {
+    public AppointmentDTO saveAppointment(AppointmentCreateDTO appointmentCreateDTO) throws AppointmentException, DataBaseException {
         // Verifica se existe um agendamento no mesmo espaço de horário
 
        Appointment appointment = convertDTOtoEntity(appointmentCreateDTO);
 
-        if (isTimeSlotOccupied(appointment.getBarber(), appointment.getStartTime(), appointment.getEndTime())) {
-            throw new IllegalArgumentException("Horário de agendamento já ocupado para este barbeiro.");
-        }
+       try {
+           if (isValidAppointment(appointment)) {
+               return convertEntityToDTO(appointmentRepository.save(appointment));
+           }
+       } catch (AppointmentException e){
+           throw new AppointmentException(e.getMessage());
+       }
 
-        return convertEntityToDTO(appointmentRepository.save(appointment));
+       return null;
     }
 
     // Atualizar agendamento existente
     @Transactional
-    public AppointmentDTO updateAppointment(Integer id, AppointmentCreateDTO appointmentCreateDTO) throws DataBaseException {
+    public AppointmentDTO updateAppointment(Integer id, AppointmentCreateDTO appointmentCreateDTO) throws DataBaseException, AppointmentException {
 
         Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new DataBaseException("Não existe agentamento com o id informado"));
 
@@ -86,10 +143,17 @@ public class AppointmentService {
         appointment.setServiceType(appointmentUpdate.getServiceType());
         appointment.setStartTime(appointmentUpdate.getStartTime());
         appointment.setEndTime(appointmentUpdate.getEndTime());
+        appointment.setTotalPrice(appointmentUpdate.getTotalPrice());
 
-        //Validar
+        try {
+            if (isValidAppointment(appointment)) {
+                return convertEntityToDTO(appointmentRepository.save(appointment));
+            }
+        } catch (AppointmentException e){
+            throw new AppointmentException(e.getMessage());
+        }
 
-        return convertEntityToDTO(appointmentRepository.save(appointment));
+        return null;
     }
 
     // Obter todos os agendamentos
@@ -136,13 +200,58 @@ public class AppointmentService {
         appointmentRepository.deleteById(id);
     }
 
+    // Verificar se o agendamento é válido
+    private boolean isValidAppointment(Appointment appointment) throws AppointmentException {
+        if (appointment != null){
+
+            if(appointment.getBarber() == null){
+                throw new AppointmentException("É necessário selecionar um barbeiro para o agendamento");
+            }
+
+            Set<Services> servicesAppointment = appointment.getServiceType();
+            Set<Services> servicesBarber = appointment.getBarber().getServices();
+
+            for(Services s : servicesAppointment){
+                if(!servicesBarber.contains(s)){
+                    throw new AppointmentException("O barbeiro selecionado não está apto para algum desses serviços");
+                }
+            }
+
+            if(appointment.getClientName().isBlank() || appointment.getClientNumber().isBlank()){
+                throw new AppointmentException("As informações do cliente são campos obrigatórios");
+            }
+
+            isTimeValidated(appointment);
+
+            return true;
+        }
+        throw new AppointmentException("O agendamento não pode ser nulo");
+    }
+
+    private void isTimeValidated(Appointment appointment){
+        if(appointment.getStartTime().isBefore(LocalDateTime.now())){
+            throw new AppointmentException("Não é possivel agendar para um dia/horário passado");
+        }
+
+        if(!isTimeSlotOccupied(appointment.getBarber(), appointment.getStartTime(), appointment.getEndTime()) &&
+                isTimeSlotOccupied(appointment.getBarber(), appointment.getStartTime(), appointment.getEndTime(), appointment.getId())){
+            throw new AppointmentException("O barbeiro selecionado já está reservado nesse horário");
+        }
+
+        if((appointment.getStartTime().toLocalTime().isBefore(appointment.getBarber().getStart())) ||
+                (appointment.getStartTime().toLocalTime()).isAfter(appointment.getBarber().getEnd()) ||
+                (appointment.getEndTime().toLocalTime().isAfter(appointment.getBarber().getEnd()))){
+
+            throw new AppointmentException("O barbeiro selecionado não trabalha no horário agendado");
+        }
+    }
+
     // Verificar se o horário está ocupado por outro agendamento
     private boolean isTimeSlotOccupied(Barber barber, LocalDateTime start, LocalDateTime end) {
         List<Appointment> conflictingAppointments = appointmentRepository.findByBarberAndStartTimeBetween(barber, start, end);
-        return !conflictingAppointments.isEmpty();
+        return conflictingAppointments.isEmpty();
     }
 
-    // Verificar se o horário está ocupado por outro agendamento (excluindo o atual)
     private boolean isTimeSlotOccupied(Barber barber, LocalDateTime start, LocalDateTime end, Integer appointmentId) {
         List<Appointment> conflictingAppointments = appointmentRepository.findByBarberAndStartTimeBetween(barber, start, end);
         return conflictingAppointments.stream().anyMatch(a -> !a.getId().equals(appointmentId));
@@ -156,11 +265,15 @@ public class AppointmentService {
 
         Set<Services> services = new HashSet<>();
         Integer timeMinutes = 0;
+        Double price = 0.0;
         for(Integer id : appointmentCreateDTO.getServiceTypeIds()) {
             Services s = servicesService.getServiceEntity(id);
             services.add(s);
             timeMinutes += (s.getTimeService().getHour() + s.getTimeService().getMinute());
+            price += s.getValueService();
         }
+
+        appointment.setTotalPrice(price);
 
         appointment.setServiceType(services);
 
@@ -178,10 +291,12 @@ public class AppointmentService {
     private AppointmentDTO convertEntityToDTO(Appointment appointment) {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
 
+        appointmentDTO.setId(appointment.getId());
         appointmentDTO.setClientName(appointment.getClientName());
         appointmentDTO.setClientNumber(appointment.getClientNumber());
         appointmentDTO.setBarber(barberService.convertToCompleteDTO(appointment.getBarber()));
         appointmentDTO.setServiceType(appointment.getServiceType());
+        appointmentDTO.setTotalPrice(appointment.getTotalPrice());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         String timeString;

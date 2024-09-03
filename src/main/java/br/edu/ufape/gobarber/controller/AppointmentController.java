@@ -82,6 +82,33 @@ public class AppointmentController {
         return new ResponseEntity<>(appointmentDTO, HttpStatus.OK);
     }
 
+    @GetMapping("/future")
+    public ResponseEntity<PageAppointmentDTO> getFutureAppointments(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                                                    @RequestParam(value = "size", required = false, defaultValue = "10") Integer siz){
+
+        PageAppointmentDTO appointmentDTO = appointmentService.getFutureAppointments(page, siz);
+        return new ResponseEntity<>(appointmentDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/future/barber")
+    public ResponseEntity<PageAppointmentDTO> getFutureAppointmentsByBarber(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                                                            @RequestParam(value = "size", required = false, defaultValue = "10") Integer siz,
+                                                                            @RequestParam(value = "barberId") Integer barberId)
+                                                                            throws DataBaseException {
+
+        PageAppointmentDTO appointmentDTO = appointmentService.getFutureAppointments(page, siz, barberId);
+        return new ResponseEntity<>(appointmentDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/future/barber/own")
+    public ResponseEntity<PageAppointmentDTO> getFutureAppointmentsByBarber(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                                                            @RequestParam(value = "size", required = false, defaultValue = "10") Integer siz,
+                                                                            HttpServletRequest request) throws DataBaseException {
+
+        PageAppointmentDTO appointmentDTO = appointmentService.getFutureAppointments(page, siz, request);
+        return new ResponseEntity<>(appointmentDTO, HttpStatus.OK);
+    }
+
     // Excluir agendamento por ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAppointment(@PathVariable Integer id) {

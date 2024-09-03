@@ -236,7 +236,6 @@
         </sql>
     </changeSet>
 
-
     <changeSet id="11" author="carlos-bahia">
         <sql dbms="postgresql">
 
@@ -277,6 +276,15 @@
                 ADD COLUMN contact VARCHAR(11),
             ADD COLUMN start_working TIME,
             ADD COLUMN end_working TIME
+
+        </sql>
+    </changeSet>
+
+    <changeSet id="15" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            ALTER TABLE APPOINTMENT
+            ADD COLUMN total_price FLOAT;
 
         </sql>
     </changeSet>

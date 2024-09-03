@@ -16,4 +16,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
     List<Appointment> findByBarberAndStartTimeBetween(Barber barber, LocalDateTime start, LocalDateTime end);
     Page<Appointment> findByBarber(Barber barber, Pageable pageable);
     Page<Appointment> findByBarberAndEndTimeBeforeOrderByStartTime(Pageable pageable, Barber barber, LocalDateTime dateTime);
+    Page<Appointment> findByStartTimeAfterOrderByStartTime(Pageable pageable, LocalDateTime dateTime);
+    Page<Appointment> findByBarberAndStartTimeAfterOrderByStartTime(Pageable pageable,  Barber barber, LocalDateTime dateTime);
 }
