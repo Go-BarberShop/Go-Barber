@@ -44,6 +44,58 @@ public class AppointmentService {
         throw new DataBaseException("Não existe perfil de barbeiro associado a esse login");
     }
 
+    public PageAppointmentDTO getFutureAppointments(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> pageApp =  appointmentRepository.findByStartTimeAfterOrderByStartTime(pageable, LocalDateTime.now());
+        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
+
+        return new PageAppointmentDTO(
+                appointmentDTOS.getTotalElements(),
+                appointmentDTOS.getTotalPages(),
+                appointmentDTOS.getPageable().getPageNumber(),
+                appointmentDTOS.getSize(),
+                appointmentDTOS.getContent()
+        );
+    }
+
+    public PageAppointmentDTO getFutureAppointments(Integer page, Integer size, HttpServletRequest request) throws DataBaseException {
+        String token = request.getHeader("Authorization");
+        Optional<User> user = userService.findById(userService.getJtiFromToken(token));
+        Barber barber = null;
+        if (user.isPresent()){
+           barber = barberService.getBarberEntity(user.get());
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> pageApp =  appointmentRepository.findByBarberAndStartTimeAfterOrderByStartTime(pageable, barber, LocalDateTime.now());
+        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
+
+        return new PageAppointmentDTO(
+                appointmentDTOS.getTotalElements(),
+                appointmentDTOS.getTotalPages(),
+                appointmentDTOS.getPageable().getPageNumber(),
+                appointmentDTOS.getSize(),
+                appointmentDTOS.getContent()
+        );
+    }
+
+    public PageAppointmentDTO getFutureAppointments(Integer page, Integer size, Integer barberId) throws DataBaseException {
+        Barber barber = barberService.getBarberEntity(barberId);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> pageApp =  appointmentRepository.findByBarberAndStartTimeAfterOrderByStartTime(pageable, barber, LocalDateTime.now());
+        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
+
+        return new PageAppointmentDTO(
+                appointmentDTOS.getTotalElements(),
+                appointmentDTOS.getTotalPages(),
+                appointmentDTOS.getPageable().getPageNumber(),
+                appointmentDTOS.getSize(),
+                appointmentDTOS.getContent()
+        );
+    }
+
+
     public PageAppointmentDTO getHistoryByBarber(Integer page, Integer size, Integer barberId) throws DataBaseException {
         Barber barber = barberService.getBarberEntity(barberId);
 
