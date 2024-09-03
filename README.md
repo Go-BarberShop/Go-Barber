@@ -1,6 +1,5 @@
 # Go-Barber
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b03264a7588f4fa68d85a67944a6f4e3)](https://app.codacy.com/gh/Go-BarberShop/Go-Barber/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
- [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/b03264a7588f4fa68d85a67944a6f4e3)](https://app.codacy.com/gh/Go-BarberShop/Go-Barber/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 <div align="center">
     <img height=200 src="https://media.tenor.com/QckgX69_GBoAAAAi/berlin-funny-haircut.gif">
 </div>
