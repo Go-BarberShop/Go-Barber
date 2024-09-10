@@ -289,4 +289,16 @@
         </sql>
     </changeSet>
 
+    <changeSet id="16" author="carlos-bahia">
+        <sql dbms="postgresql">
+
+            ALTER TABLE APPOINTMENT
+            ALTER COLUMN number_client TYPE VARCHAR(11);
+
+            ALTER TABLE APPOINTMENT
+                ALTER COLUMN number_client SET NOT NULL;
+
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

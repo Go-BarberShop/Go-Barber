@@ -66,22 +66,16 @@ public class AppointmentService {
            barber = barberService.getBarberEntity(user.get());
         }
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Appointment> pageApp =  appointmentRepository.findByBarberAndStartTimeAfterOrderByStartTime(pageable, barber, LocalDateTime.now());
-        Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
-
-        return new PageAppointmentDTO(
-                appointmentDTOS.getTotalElements(),
-                appointmentDTOS.getTotalPages(),
-                appointmentDTOS.getPageable().getPageNumber(),
-                appointmentDTOS.getSize(),
-                appointmentDTOS.getContent()
-        );
+        return getPageAppointmentDTO(page, size, barber);
     }
 
     public PageAppointmentDTO getFutureAppointments(Integer page, Integer size, Integer barberId) throws DataBaseException {
         Barber barber = barberService.getBarberEntity(barberId);
 
+        return getPageAppointmentDTO(page, size, barber);
+    }
+
+    private PageAppointmentDTO getPageAppointmentDTO(Integer page, Integer size, Barber barber) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Appointment> pageApp =  appointmentRepository.findByBarberAndStartTimeAfterOrderByStartTime(pageable, barber, LocalDateTime.now());
         Page<AppointmentDTO> appointmentDTOS = pageApp.map(this::convertEntityToDTO);
@@ -94,7 +88,6 @@ public class AppointmentService {
                 appointmentDTOS.getContent()
         );
     }
-
 
     public PageAppointmentDTO getHistoryByBarber(Integer page, Integer size, Integer barberId) throws DataBaseException {
         Barber barber = barberService.getBarberEntity(barberId);
@@ -277,7 +270,7 @@ public class AppointmentService {
 
         appointment.setServiceType(services);
 
-        LocalDateTime time = LocalDateTime.parse(appointmentCreateDTO.getStartTime(), DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        LocalDateTime time = appointmentCreateDTO.getStartTime();
 
         appointment.setStartTime(time);
 
